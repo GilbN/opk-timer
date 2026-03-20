@@ -11,57 +11,62 @@
 
 {#if program && stage && exercise}
   <div class="series-progress">
-    <div class="program-name">{getLocalizedName(program.name, lang)}</div>
-    <div class="stage-name">{getLocalizedName(stage.name, lang)}</div>
+    <span class="tag prog">{getLocalizedName(program.name, lang)}</span>
+    <span class="divider">·</span>
+    <span class="tag stage">{getLocalizedName(stage.name, lang)}</span>
     {#if stage.exercises.length > 1}
-      <div class="exercise-info">
-        {$t('series')} {$timerState.exerciseIndex + 1}/{stage.exercises.length}
-      </div>
+      <span class="divider">·</span>
+      <span class="tag">{$t('series')} {$timerState.exerciseIndex + 1}/{stage.exercises.length}</span>
     {/if}
-    <div class="series-info">
-      {$t('series')} {$timerState.seriesIndex + 1} {$t('of')} {exercise.seriesCount}
+    <span class="divider">·</span>
+    <span class="tag">
+      {$t('series')} {$timerState.seriesIndex + 1}/{exercise.seriesCount}
       {#if exercise.shotsPerSeries}
-        — {exercise.shotsPerSeries} {$preferences.lang === 'no' ? 'skudd' : 'shots'}
+        · {exercise.shotsPerSeries}{lang === 'no' ? 'sk' : 'sh'}
       {/if}
-    </div>
+    </span>
     {#if stage.type === 'duell' && exercise.targetVisibleTime && $timerState.phase === 'shooting'}
-      <div class="duel-info">
-        {$t('showing')} {$timerState.duelShowingIndex + 1}/{Math.ceil(exercise.shotsPerSeries / exercise.shotsPerShowing)}
-      </div>
+      <span class="divider">·</span>
+      <span class="tag duel">{$t('showing')} {$timerState.duelShowingIndex + 1}/{Math.ceil(exercise.shotsPerSeries / exercise.shotsPerShowing)}</span>
     {/if}
   </div>
 {/if}
 
 <style>
   .series-progress {
-    text-align: center;
-    padding: 0.5rem;
     display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.15rem 0.1rem;
+    padding: 0.4rem 0.5rem;
   }
 
-  .program-name {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-primary);
-  }
-
-  .stage-name {
-    font-size: 0.95rem;
+  .tag {
+    font-size: 0.72rem;
     font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  .tag.prog {
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+
+  .tag.stage {
     color: var(--accent);
   }
 
-  .exercise-info,
-  .series-info {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
+  .tag.duel {
+    color: var(--warning);
   }
 
-  .duel-info {
-    font-size: 0.85rem;
-    color: var(--warning);
-    font-weight: 600;
+  .divider {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    opacity: 0.4;
+    margin: 0 0.1rem;
   }
 </style>

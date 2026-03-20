@@ -7,40 +7,28 @@
 
 <div class="connection-status" class:connected={status === 'connected'} class:reconnecting={status === 'reconnecting'} class:disconnected={status === 'disconnected'}>
   <span class="dot"></span>
-  <span class="label">
-    {#if status === 'connected'}
-      {$t('connected')}
-      {#if $roomState.isHost && $roomState.connectedPeers.length > 0}
-        ({$roomState.connectedPeers.length} {$t('peers')})
-      {/if}
-    {:else if status === 'connecting'}
-      {$t('connecting')}...
-    {:else if status === 'reconnecting'}
-      {$t('reconnecting')}...
-    {:else}
-      {$t('disconnected')}
-    {/if}
-  </span>
+  {#if status === 'reconnecting'}
+    <span class="label">{$t('reconnecting')}…</span>
+  {:else if status === 'disconnected'}
+    <span class="label">{$t('disconnected')}</span>
+  {/if}
 </div>
 
 <style>
   .connection-status {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    font-size: 0.8rem;
+    gap: 0.35rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
   }
 
   .dot {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    background: var(--text-secondary);
-  }
-
-  .connected .dot {
     background: var(--accent);
+    flex-shrink: 0;
   }
 
   .reconnecting .dot {
@@ -52,8 +40,16 @@
     background: var(--danger);
   }
 
+  .label {
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+
+  .reconnecting .label { color: var(--warning); }
+  .disconnected .label { color: var(--danger); }
+
   @keyframes pulse {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
+    50% { opacity: 0.25; }
   }
 </style>

@@ -215,6 +215,8 @@ export class TimerScheduler {
 
     if (stage.type === 'duell' && exercise.targetVisibleTime) {
       this._startDuelShooting(exercise)
+    } else if (stage.type === 'rapid' && exercise.targetHiddenTime) {
+      this._startRapidShooting(exercise)
     } else {
       this._startPrecisionShooting(exercise)
     }
@@ -237,19 +239,47 @@ export class TimerScheduler {
     })
   }
 
+  _startRapidShooting(exercise) {
+    // Hidden phase first
+    this._updateState({
+      phase: 'shooting',
+      targetVisible: false,
+      remainingMs: exercise.targetHiddenTime * 1000,
+      totalMs: exercise.targetHiddenTime * 1000,
+      phaseStartedAt: Date.now(),
+    })
+
+    this.engine.startCountdown(exercise.targetHiddenTime * 1000, (remaining) => {
+      this._updateState({ remainingMs: remaining })
+    }, () => {
+      // Visible phase
+      const visibleMs = exercise.timePerSeries * 1000
+      this._updateState({
+        targetVisible: true,
+        remainingMs: visibleMs,
+        totalMs: visibleMs,
+      })
+
+      beepTargetUp()
+
+      this.engine.startCountdown(visibleMs, (remaining) => {
+        this._updateState({ remainingMs: remaining })
+      }, () => {
+        beepTargetDown()
+        this._seriesComplete()
+      })
+    })
+  }
+
   _startDuelShooting(exercise) {
     const showingsPerSeries = Math.ceil(exercise.shotsPerSeries / exercise.shotsPerShowing)
 
     this._updateState({
       phase: 'shooting',
-      targetVisible: true,
       duelShowingIndex: 0,
-      remainingMs: exercise.targetVisibleTime * 1000,
-      totalMs: exercise.targetVisibleTime * 1000,
       phaseStartedAt: Date.now(),
     })
 
-    beepTargetUp()
     this._runDuelCycle(exercise, 0, showingsPerSeries)
   }
 
@@ -259,33 +289,30 @@ export class TimerScheduler {
       return
     }
 
+    // Hidden phase first
     this._updateState({
-      targetVisible: true,
+      targetVisible: false,
       duelShowingIndex: showingIndex,
-      remainingMs: exercise.targetVisibleTime * 1000,
-      totalMs: exercise.targetVisibleTime * 1000,
+      remainingMs: exercise.targetHiddenTime * 1000,
+      totalMs: exercise.targetHiddenTime * 1000,
     })
 
-    beepTargetUp()
-
-    this.engine.startCountdown(exercise.targetVisibleTime * 1000, (remaining) => {
+    this.engine.startCountdown(exercise.targetHiddenTime * 1000, (remaining) => {
       this._updateState({ remainingMs: remaining })
     }, () => {
-      beepTargetDown()
-      if (showingIndex + 1 >= totalShowings) {
-        this._seriesComplete()
-        return
-      }
-
+      // Then visible phase
       this._updateState({
-        targetVisible: false,
-        remainingMs: exercise.targetHiddenTime * 1000,
-        totalMs: exercise.targetHiddenTime * 1000,
+        targetVisible: true,
+        remainingMs: exercise.targetVisibleTime * 1000,
+        totalMs: exercise.targetVisibleTime * 1000,
       })
 
-      this.engine.startCountdown(exercise.targetHiddenTime * 1000, (remaining) => {
+      beepTargetUp()
+
+      this.engine.startCountdown(exercise.targetVisibleTime * 1000, (remaining) => {
         this._updateState({ remainingMs: remaining })
       }, () => {
+        beepTargetDown()
         this._runDuelCycle(exercise, showingIndex + 1, totalShowings)
       })
     })

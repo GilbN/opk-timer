@@ -1,9 +1,12 @@
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { VitePWA } from 'vite-plugin-pwa'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
+  base: process.env.VITE_BASE_PATH || '/',
   plugins: [
+    tailwindcss(),
     svelte(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -11,13 +14,13 @@ export default defineConfig({
         name: 'OPK Timer',
         short_name: 'OPK Timer',
         description: 'Synchronized timer for NSF 25m shooting competitions',
-        theme_color: '#1a1a2e',
-        background_color: '#1a1a2e',
+        theme_color: '#0d0d1a',
+        background_color: '#0d0d1a',
         display: 'standalone',
         orientation: 'portrait',
         icons: [
-          { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
         ],
       },
       workbox: {

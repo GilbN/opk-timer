@@ -5,6 +5,9 @@
  * Reference: "SKYTEPROGRAMMER 25 METER NSF (BANE & FELT)"
  */
 
+const DEFAULT_LOADING_TIME = 5
+const DEFAULT_TARGET_HIDDEN_TIME = 7
+
 export const programs = [
   {
     id: 'fingrov',
@@ -24,7 +27,7 @@ export const programs = [
           seriesCount: 6,
           shotsPerSeries: 5,
           timePerSeries: 300,
-          loadingTime: 60,
+          loadingTime: DEFAULT_LOADING_TIME,
         }],
       },
       {
@@ -37,7 +40,7 @@ export const programs = [
           shotsPerShowing: 1,
           targetVisibleTime: 3,
           targetHiddenTime: 7,
-          loadingTime: 60,
+          loadingTime: DEFAULT_LOADING_TIME,
         }],
       },
     ],
@@ -60,7 +63,7 @@ export const programs = [
           seriesCount: 4,
           shotsPerSeries: 5,
           timePerSeries: 150,
-          loadingTime: 60,
+          loadingTime: DEFAULT_LOADING_TIME,
         }],
       },
       {
@@ -71,7 +74,7 @@ export const programs = [
           seriesCount: 4,
           shotsPerSeries: 5,
           timePerSeries: 20,
-          loadingTime: 60,
+          loadingTime: DEFAULT_LOADING_TIME,
         }],
       },
       {
@@ -82,7 +85,7 @@ export const programs = [
           seriesCount: 4,
           shotsPerSeries: 5,
           timePerSeries: 10,
-          loadingTime: 60,
+          loadingTime: DEFAULT_LOADING_TIME,
         }],
       },
     ],
@@ -100,21 +103,21 @@ export const programs = [
       {
         id: 'ds1',
         name: { no: 'Delserie 1', en: 'Stage 1' },
-        type: 'precision',
+        type: 'rapid',
         exercises: [
-          { seriesCount: 2, shotsPerSeries: 5, timePerSeries: 8, loadingTime: 60 },
-          { seriesCount: 2, shotsPerSeries: 5, timePerSeries: 6, loadingTime: 60 },
-          { seriesCount: 2, shotsPerSeries: 5, timePerSeries: 4, loadingTime: 60 },
+          { seriesCount: 2, shotsPerSeries: 5, timePerSeries: 8, targetHiddenTime: DEFAULT_TARGET_HIDDEN_TIME, loadingTime: DEFAULT_LOADING_TIME },
+          { seriesCount: 2, shotsPerSeries: 5, timePerSeries: 6, targetHiddenTime: DEFAULT_TARGET_HIDDEN_TIME, loadingTime: DEFAULT_LOADING_TIME },
+          { seriesCount: 2, shotsPerSeries: 5, timePerSeries: 4, targetHiddenTime: DEFAULT_TARGET_HIDDEN_TIME, loadingTime: DEFAULT_LOADING_TIME },
         ],
       },
       {
         id: 'ds2',
         name: { no: 'Delserie 2', en: 'Stage 2' },
-        type: 'precision',
+        type: 'rapid',
         exercises: [
-          { seriesCount: 2, shotsPerSeries: 5, timePerSeries: 8, loadingTime: 60 },
-          { seriesCount: 2, shotsPerSeries: 5, timePerSeries: 6, loadingTime: 60 },
-          { seriesCount: 2, shotsPerSeries: 5, timePerSeries: 4, loadingTime: 60 },
+          { seriesCount: 2, shotsPerSeries: 5, timePerSeries: 8, targetHiddenTime: DEFAULT_TARGET_HIDDEN_TIME, loadingTime: DEFAULT_LOADING_TIME },
+          { seriesCount: 2, shotsPerSeries: 5, timePerSeries: 6, targetHiddenTime: DEFAULT_TARGET_HIDDEN_TIME, loadingTime: DEFAULT_LOADING_TIME },
+          { seriesCount: 2, shotsPerSeries: 5, timePerSeries: 4, targetHiddenTime: DEFAULT_TARGET_HIDDEN_TIME, loadingTime: DEFAULT_LOADING_TIME },
         ],
       },
     ],
@@ -137,7 +140,7 @@ export const programs = [
           seriesCount: 2,
           shotsPerSeries: 5,
           timePerSeries: 150,
-          loadingTime: 60,
+          loadingTime: DEFAULT_LOADING_TIME,
         }],
       },
       {
@@ -150,16 +153,16 @@ export const programs = [
           shotsPerShowing: 1,
           targetVisibleTime: 3,
           targetHiddenTime: 7,
-          loadingTime: 60,
+          loadingTime: DEFAULT_LOADING_TIME,
         }],
       },
       {
         id: 'ds3',
         name: { no: 'Hurtig', en: 'Rapid' },
-        type: 'precision',
+        type: 'rapid',
         exercises: [
-          { seriesCount: 1, shotsPerSeries: 5, timePerSeries: 20, loadingTime: 60 },
-          { seriesCount: 1, shotsPerSeries: 5, timePerSeries: 10, loadingTime: 60 },
+          { seriesCount: 1, shotsPerSeries: 5, timePerSeries: 20, targetHiddenTime: DEFAULT_TARGET_HIDDEN_TIME, loadingTime: DEFAULT_LOADING_TIME },
+          { seriesCount: 1, shotsPerSeries: 5, timePerSeries: 10, targetHiddenTime: DEFAULT_TARGET_HIDDEN_TIME, loadingTime: DEFAULT_LOADING_TIME },
         ],
       },
     ],
@@ -194,34 +197,37 @@ export const programs = [
       {
         id: 'ds1',
         name: { no: '10 sekunder', en: '10 seconds' },
-        type: 'precision',
+        type: 'rapid',
         exercises: [{
           seriesCount: 4,
           shotsPerSeries: 5,
           timePerSeries: 10,
-          loadingTime: 60,
+          targetHiddenTime: DEFAULT_TARGET_HIDDEN_TIME,
+          loadingTime: DEFAULT_LOADING_TIME,
         }],
       },
       {
         id: 'ds2',
         name: { no: '8 sekunder', en: '8 seconds' },
-        type: 'precision',
+        type: 'rapid',
         exercises: [{
           seriesCount: 4,
           shotsPerSeries: 5,
           timePerSeries: 8,
-          loadingTime: 60,
+          targetHiddenTime: DEFAULT_TARGET_HIDDEN_TIME,
+          loadingTime: DEFAULT_LOADING_TIME,
         }],
       },
       {
         id: 'ds3',
         name: { no: '6 sekunder', en: '6 seconds' },
-        type: 'precision',
+        type: 'rapid',
         exercises: [{
           seriesCount: 4,
           shotsPerSeries: 5,
           timePerSeries: 6,
-          loadingTime: 60,
+          targetHiddenTime: DEFAULT_TARGET_HIDDEN_TIME,
+          loadingTime: DEFAULT_LOADING_TIME,
         }],
       },
     ],

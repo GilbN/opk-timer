@@ -1,20 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface: #0d0d1a;
+  --color-surface-alt: #12122a;
+  --color-surface-raised: #1c1c3a;
+  --color-accent: #00e676;
+  --color-accent-dim: #00c853;
+  --color-amber: #ffb547;
+  --color-danger: #f44336;
+  --color-text: #f5f5f5;
+  --color-text-muted: #6b7280;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ── CSS custom properties (shared across scoped styles) ── */
 :root {
-  --bg-primary: #1a1a2e;
-  --bg-secondary: #16213e;
-  --bg-surface: #0f3460;
-  --text-primary: #e0e0e0;
-  --text-secondary: #a0a0b0;
+  --bg-primary: #0d0d1a;
+  --bg-secondary: #12122a;
+  --bg-surface: #1c1c3a;
+  --text-primary: #f5f5f5;
+  --text-secondary: #6b7280;
   --accent: #00e676;
   --accent-dim: #00c853;
-  --warning: #ff9800;
+  --warning: #ffb547;
   --danger: #f44336;
   --target-up: #00e676;
   --target-down: #f44336;
-  --radius: 8px;
-  --radius-lg: 16px;
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --radius: 6px;
+  --radius-lg: 12px;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Phase color temperatures */
+  --phase-loading: #ffb547;
+  --phase-loading-bg: rgba(255, 181, 71, 0.08);
+  --phase-shooting: #00e676;
+  --phase-shooting-bg: rgba(0, 230, 118, 0.08);
+  --phase-paused: #5b8dd9;
+  --phase-paused-bg: rgba(91, 141, 217, 0.08);
+  --phase-stopped: #4b5563;
+  --phase-stopped-bg: rgba(75, 85, 99, 0.08);
 }
 
 *, *::before, *::after {
@@ -50,17 +77,18 @@ button {
   border-radius: var(--radius);
   cursor: pointer;
   padding: 0.75rem 1.5rem;
-  transition: background 0.15s, transform 0.1s;
+  transition: background 0.15s, transform 0.1s, opacity 0.15s;
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
 .btn-primary {
   background: var(--accent);
-  color: var(--bg-primary);
+  color: #0d0d1a;
 }
 
 .btn-primary:hover {
@@ -70,10 +98,11 @@ button:active {
 .btn-secondary {
   background: var(--bg-surface);
   color: var(--text-primary);
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
 .btn-secondary:hover {
-  background: #1a4a80;
+  background: #252550;
 }
 
 .btn-danger {
@@ -82,9 +111,9 @@ button:active {
 }
 
 .btn-large {
-  padding: 1rem 2rem;
-  font-size: 1.2rem;
-  min-height: 56px;
+  padding: 0.875rem 1.75rem;
+  font-size: 1.1rem;
+  min-height: 52px;
   min-width: 120px;
 }
 
@@ -92,16 +121,17 @@ input {
   font-family: var(--font-sans);
   font-size: 1rem;
   padding: 0.75rem 1rem;
-  border: 2px solid var(--bg-surface);
+  border: 1px solid var(--bg-surface);
   border-radius: var(--radius);
   background: var(--bg-secondary);
   color: var(--text-primary);
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 input:focus {
   border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(0, 230, 118, 0.15);
 }
 
 input::placeholder {
@@ -117,6 +147,26 @@ input::placeholder {
   width: 100%;
   margin: 0 auto;
   min-height: 0;
+}
+
+/* ── Keyframe library ── */
+@keyframes blink {
+  50% { opacity: 0.25; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes glow-green {
+  0%, 100% { text-shadow: 0 0 20px rgba(0, 230, 118, 0.5); }
+  50% { text-shadow: 0 0 40px rgba(0, 230, 118, 0.85), 0 0 80px rgba(0, 230, 118, 0.25); }
+}
+
+@keyframes slide-in-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 480px) {

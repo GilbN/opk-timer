@@ -67,38 +67,56 @@
 
 <div class="view stopwatch-view">
   <div class="header">
-    <h2>{$t('stopwatch')}</h2>
+    <div class="title-row">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="header-icon">
+        <circle cx="12" cy="13" r="8"/>
+        <polyline points="12 9 12 13 14.5 15"/>
+        <path d="M9 3h6M12 3v2"/>
+      </svg>
+      <h2>{$t('stopwatch')}</h2>
+    </div>
     <LangToggle />
   </div>
 
   <div class="display-area">
-    <div class="time">
+    <div class="time" class:running>
       <span class="digits">{display.min}</span>
-      <span class="separator">:</span>
+      <span class="colon">:</span>
       <span class="digits">{display.sec}</span>
-      <span class="separator small">.</span>
-      <span class="digits small">{display.ms}</span>
+      <span class="colon small">.</span>
+      <span class="digits sub">{display.ms}</span>
     </div>
   </div>
 
   <div class="controls">
-    <button class="btn-large" class:btn-primary={!running} class:btn-secondary={running} onclick={toggle}>
-      {running ? $t('pause') : (elapsed > 0 ? $t('resume') : $t('start'))}
+    <button
+      class="btn-toggle"
+      class:btn-start={!running}
+      class:btn-pause={running}
+      onclick={toggle}
+    >
+      {#if running}
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        {$t('pause')}
+      {:else}
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        {elapsed > 0 ? $t('resume') : $t('start')}
+      {/if}
     </button>
     <button class="btn-secondary btn-large" onclick={reset}>
       {$t('reset')}
     </button>
   </div>
 
-  <button class="btn-secondary back-btn" onclick={goBack}>
-    {$t('back')}
+  <button class="btn-back" onclick={goBack}>
+    ← {$t('back')}
   </button>
 </div>
 
 <style>
   .stopwatch-view {
     justify-content: center;
-    gap: 2rem;
+    gap: 1.75rem;
   }
 
   .header {
@@ -107,8 +125,22 @@
     align-items: center;
   }
 
+  .title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .header-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--text-secondary);
+  }
+
   h2 {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
   }
 
   .display-area {
@@ -122,35 +154,45 @@
   .time {
     display: flex;
     align-items: baseline;
-    gap: 0.05em;
+    gap: 0.02em;
+    transition: color 0.3s;
   }
+
+  .time.running .digits { color: var(--accent); }
+  .time.running .colon { color: var(--accent); opacity: 0.5; }
 
   .digits {
     font-family: var(--font-mono);
-    font-size: clamp(4rem, 15vw, 8rem);
-    font-weight: 700;
+    font-size: clamp(4.5rem, 18vw, 9rem);
+    font-weight: 900;
     line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.3s;
   }
 
-  .digits.small {
-    font-size: clamp(2rem, 8vw, 4rem);
+  .digits.sub {
+    font-size: clamp(2.25rem, 9vw, 4.5rem);
     color: var(--text-secondary);
   }
 
-  .separator {
+  .colon {
     font-family: var(--font-mono);
-    font-size: clamp(3rem, 12vw, 7rem);
-    font-weight: 700;
+    font-size: clamp(3.5rem, 14vw, 7.5rem);
+    font-weight: 900;
     color: var(--text-secondary);
+    align-self: baseline;
+    margin-bottom: 0.04em;
+    transition: color 0.3s;
   }
 
-  .separator.small {
+  .colon.small {
     font-size: clamp(2rem, 8vw, 4rem);
   }
 
   .controls {
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
     justify-content: center;
   }
 
@@ -159,9 +201,49 @@
     max-width: 180px;
   }
 
-  .back-btn {
-    align-self: center;
-    opacity: 0.6;
-    font-size: 0.85rem;
+  .btn-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 52px;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: var(--radius);
   }
+
+  .btn-toggle svg {
+    width: 1.2em;
+    height: 1.2em;
+    flex-shrink: 0;
+  }
+
+  .btn-start {
+    background: var(--accent);
+    color: #0d0d1a;
+  }
+
+  .btn-start:hover { background: var(--accent-dim); }
+
+  .btn-pause {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .btn-pause:hover { background: #252550; }
+
+  .btn-back {
+    align-self: center;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.3rem 0.75rem;
+    border-radius: var(--radius);
+    opacity: 0.5;
+    transition: opacity 0.15s;
+  }
+
+  .btn-back:hover { opacity: 0.9; }
 </style>

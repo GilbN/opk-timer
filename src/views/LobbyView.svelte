@@ -16,7 +16,6 @@
     const scheduler = new TimerScheduler()
     window.__opkScheduler = scheduler
 
-    // Set up broadcasting before loadProgram so initial state is sent
     const host = window.__opkHost
     if (host) {
       scheduler.onStateChange((state) => {
@@ -26,7 +25,6 @@
 
     scheduler.loadProgram(programId)
 
-    // Update saved room state with programId
     saveRoomState({ code: $roomState.code, isHost: true, programId })
     currentView.set('timer')
   }
@@ -53,13 +51,18 @@
 <div class="view lobby-view">
   <div class="top-bar">
     <RoomCode code={$roomState.code} />
-    <ConnectionStatus status="connected" />
-    <LangToggle />
+    <div class="top-bar-right">
+      <ConnectionStatus status="connected" />
+      <LangToggle />
+    </div>
   </div>
 
-  <div class="peer-count">
-    {$roomState.connectedPeers.length} {$t('peers')}
-  </div>
+  {#if $roomState.connectedPeers.length > 0}
+    <div class="peer-pill">
+      <span class="peer-dot"></span>
+      {$roomState.connectedPeers.length} {$t('peers')}
+    </div>
+  {/if}
 
   <div class="content">
     {#if showEditor}
@@ -69,14 +72,14 @@
     {/if}
   </div>
 
-  <button class="btn-danger back-btn" onclick={disconnect}>
+  <button class="btn-leave" onclick={disconnect}>
     {$t('disconnect')}
   </button>
 </div>
 
 <style>
   .lobby-view {
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
   .top-bar {
@@ -84,13 +87,31 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
-    flex-wrap: wrap;
   }
 
-  .peer-count {
-    text-align: center;
+  .top-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .peer-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 600;
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+    align-self: flex-start;
+  }
+
+  .peer-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
   }
 
   .content {
@@ -100,8 +121,21 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  .back-btn {
+  .btn-leave {
     align-self: center;
-    opacity: 0.7;
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid rgba(244, 67, 54, 0.2);
+    border-radius: var(--radius);
+    padding: 0.45rem 1.25rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    opacity: 0.75;
+    transition: opacity 0.15s, border-color 0.15s;
+  }
+
+  .btn-leave:hover {
+    opacity: 1;
+    border-color: rgba(244, 67, 54, 0.5);
   }
 </style>

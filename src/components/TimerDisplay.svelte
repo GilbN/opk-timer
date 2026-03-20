@@ -3,34 +3,60 @@
   import { t } from '../lib/i18n.js'
 
   let { mode = 'precision' } = $props()
+
+  let phase = $derived($timerState.phase)
+  let isTargetUp = $derived($timerState.targetVisible && mode === 'duell')
+  let isTargetDown = $derived(!$timerState.targetVisible && mode === 'duell' && (phase === 'shooting' || phase === 'stopped'))
+  let isDuel = $derived(mode === 'duell' && (phase === 'shooting' || phase === 'stopped'))
 </script>
 
-<div class="timer-display" class:target-up={$timerState.targetVisible && mode === 'duell'} class:target-down={!$timerState.targetVisible && mode === 'duell' && $timerState.phase === 'shooting'}>
-  {#if mode === 'duell' && $timerState.phase === 'shooting'}
-    <div class="target-indicator" class:visible={$timerState.targetVisible}>
-      {$timerState.targetVisible ? $t('targetUp') : $t('targetDown')}
+<div
+  class="timer-display"
+  class:phase-loading={phase === 'loading'}
+  class:phase-shooting={phase === 'shooting'}
+  class:phase-paused={phase === 'paused'}
+  class:phase-stopped={phase === 'stopped'}
+  class:target-up={isTargetUp}
+  class:target-down={isTargetDown}
+>
+  <!-- Phase banner strip -->
+  {#if phase !== 'idle'}
+    <div class="phase-banner">
+      <span class="phase-rule"></span>
+      <span class="phase-text">{$t(phase)}</span>
+      <span class="phase-rule"></span>
     </div>
   {/if}
 
-  <div class="time">
-    {#if mode === 'stopwatch'}
-      <span class="digits">{$formattedTime.minutes}</span>
-      <span class="separator">:</span>
-      <span class="digits">{$formattedTime.seconds}</span>
-    {:else if mode === 'duell' && $timerState.phase === 'shooting'}
-      <span class="digits large">{$formattedTime.totalSeconds}</span>
+  <!-- Duel target indicator -->
+  {#if isDuel}
+    <div class="target-indicator" class:up={isTargetUp}>
+      {#if isTargetUp}
+        <svg class="target-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <circle cx="12" cy="12" r="6"/>
+          <circle cx="12" cy="12" r="2"/>
+        </svg>
+        {$t('targetUp')}
+      {:else}
+        <svg class="target-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" stroke-dasharray="3 3"/>
+        </svg>
+        {$t('targetDown')}
+      {/if}
+    </div>
+  {/if}
+
+  <!-- Main time digits -->
+  <div class="time" class:glow={isTargetUp}>
+    {#if isDuel}
+      <span class="digits super">{$formattedTime.totalSeconds}</span>
     {:else}
       <span class="digits">{$formattedTime.minutes}</span>
-      <span class="separator">:</span>
+      <span class="colon" class:blink={phase === 'shooting'}>:</span>
       <span class="digits">{$formattedTime.seconds}</span>
     {/if}
   </div>
-
-  {#if $timerState.phase !== 'idle'}
-    <div class="phase-label" class:loading={$timerState.phase === 'loading'} class:shooting={$timerState.phase === 'shooting'} class:paused={$timerState.phase === 'paused'} class:stopped={$timerState.phase === 'stopped'}>
-      {$t($timerState.phase)}
-    </div>
-  {/if}
 </div>
 
 <style>
@@ -39,93 +65,138 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
     flex: 1;
-    transition: background 0.3s;
+    width: 100%;
+    transition: background 0.4s ease;
     border-radius: var(--radius-lg);
-    padding: 1rem;
+    overflow: hidden;
+    position: relative;
   }
 
-  .target-up {
-    background: rgba(0, 230, 118, 0.1);
+  /* Phase background tints */
+  .phase-loading  { background: var(--phase-loading-bg); }
+  .phase-shooting { background: var(--phase-shooting-bg); }
+  .phase-paused   { background: var(--phase-paused-bg); }
+  .phase-stopped  { background: var(--phase-stopped-bg); }
+  .target-up      { background: rgba(0, 230, 118, 0.07); }
+  .target-down    { background: rgba(244, 67, 54, 0.07); }
+
+  /* ── Phase banner ── */
+  .phase-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0 1.5rem;
   }
 
-  .target-down {
-    background: rgba(244, 67, 54, 0.1);
+  .phase-rule {
+    flex: 1;
+    height: 1px;
+    opacity: 0.4;
   }
 
-  .target-indicator {
-    font-size: 1.5rem;
+  .phase-text {
+    font-size: 0.65rem;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+
+  /* Phase banner colors */
+  .phase-loading  .phase-rule { background: var(--phase-loading); }
+  .phase-loading  .phase-text { color: var(--phase-loading); }
+  .phase-shooting .phase-rule { background: var(--phase-shooting); }
+  .phase-shooting .phase-text { color: var(--phase-shooting); }
+  .phase-paused   .phase-rule { background: var(--phase-paused); }
+  .phase-paused   .phase-text { color: var(--phase-paused); }
+  .phase-stopped  .phase-rule { background: var(--phase-stopped); }
+  .phase-stopped  .phase-text { color: var(--phase-stopped); }
+
+  /* ── Target indicator ── */
+  .target-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.4rem 1.2rem;
+    border-radius: 100px;
+    background: rgba(244, 67, 54, 0.12);
     color: var(--target-down);
-    padding: 0.3rem 1rem;
-    border-radius: var(--radius);
-    background: rgba(244, 67, 54, 0.15);
+    border: 1px solid rgba(244, 67, 54, 0.25);
   }
 
-  .target-indicator.visible {
+  .target-indicator.up {
+    background: rgba(0, 230, 118, 0.12);
     color: var(--target-up);
-    background: rgba(0, 230, 118, 0.15);
+    border-color: rgba(0, 230, 118, 0.3);
   }
 
+  .target-icon {
+    width: 1.1em;
+    height: 1.1em;
+    flex-shrink: 0;
+  }
+
+  /* ── Time digits ── */
   .time {
     display: flex;
     align-items: baseline;
     justify-content: center;
-    gap: 0.1em;
+    gap: 0.02em;
+    transition: color 0.4s ease;
   }
 
   .digits {
     font-family: var(--font-mono);
-    font-size: clamp(4rem, 15vw, 8rem);
-    font-weight: 700;
+    font-size: clamp(5rem, 24vw, 10rem);
+    font-weight: 900;
     line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.4s ease, text-shadow 0.4s ease;
     color: var(--text-primary);
   }
 
-  .digits.large {
-    font-size: clamp(6rem, 22vw, 12rem);
+  .digits.super {
+    font-size: clamp(7rem, 34vw, 15rem);
   }
 
-  .separator {
+  .colon {
     font-family: var(--font-mono);
-    font-size: clamp(3rem, 12vw, 7rem);
-    font-weight: 700;
+    font-size: clamp(4rem, 20vw, 8.5rem);
+    font-weight: 900;
+    line-height: 1;
     color: var(--text-secondary);
+    align-self: baseline;
+    margin-bottom: 0.03em;
+    transition: color 0.4s ease;
+  }
+
+  .colon.blink {
     animation: blink 1s step-end infinite;
   }
 
-  @keyframes blink {
-    50% { opacity: 0.3; }
-  }
+  /* ── Digit colors by phase ── */
+  .phase-loading .digits,
+  .phase-loading .colon  { color: var(--phase-loading); }
 
-  .phase-label {
-    font-size: 1rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    padding: 0.25rem 0.75rem;
-    border-radius: var(--radius);
-  }
+  .phase-shooting .digits { color: #ffffff; }
+  .phase-shooting .colon  { color: var(--phase-shooting); }
 
-  .phase-label.loading {
-    color: var(--warning);
-    background: rgba(255, 152, 0, 0.15);
-  }
+  .phase-paused .digits   { color: var(--phase-paused); }
+  .phase-paused .colon    { color: var(--phase-paused); opacity: 0.4; }
 
-  .phase-label.shooting {
+  .phase-stopped .digits  { color: var(--phase-stopped); }
+  .phase-stopped .colon   { color: var(--phase-stopped); }
+
+  /* Duel target-up glow */
+  .time.glow .digits {
     color: var(--accent);
-    background: rgba(0, 230, 118, 0.15);
-  }
-
-  .phase-label.paused {
-    color: var(--warning);
-    background: rgba(255, 152, 0, 0.15);
-  }
-
-  .phase-label.stopped {
-    color: var(--text-secondary);
-    background: rgba(160, 160, 176, 0.15);
+    animation: glow-green 2s ease-in-out infinite;
   }
 </style>

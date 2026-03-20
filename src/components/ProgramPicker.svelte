@@ -18,24 +18,32 @@
 </script>
 
 <div class="program-picker">
-  <h3>{$t('selectProgram')}</h3>
+  <p class="section-label">{$t('selectProgram')}</p>
 
   <div class="program-list">
     {#each builtinPrograms as program}
-      <div class="program-card-wrapper">
-        <div class="program-card">
-          <div class="program-card-header">
-            <button class="program-card-select" onclick={() => onSelect(program.id)}>
-              <span class="program-name">{getLocalizedName(program.name, lang)}</span>
-              <span class="program-detail">{program.distance} — {program.totalCompetitionShots} {lang === 'no' ? 'skudd' : 'shots'}</span>
-            </button>
-            <button class="info-btn" class:active={expandedId === program.id} onclick={(e) => toggleInfo(e, program.id)} aria-label={$t('programInfo')}>
-              ℹ
-            </button>
-          </div>
+      <div class="program-entry" class:expanded={expandedId === program.id}>
+        <div class="program-row">
+          <button class="program-select" onclick={() => onSelect(program.id)}>
+            <span class="program-name">{getLocalizedName(program.name, lang)}</span>
+            <span class="program-meta">{program.distance} · {program.totalCompetitionShots} {lang === 'no' ? 'skudd' : 'shots'}</span>
+          </button>
+          <button
+            class="info-btn"
+            class:active={expandedId === program.id}
+            onclick={(e) => toggleInfo(e, program.id)}
+            aria-label={$t('programInfo')}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </button>
         </div>
+
         {#if expandedId === program.id}
-          <div class="program-info-panel">
+          <div class="info-panel">
             <div class="info-row">
               <span class="info-label">{$t('distance')}</span>
               <span class="info-value">{program.distance}</span>
@@ -76,10 +84,14 @@
     {/each}
 
     {#each customPrograms as program}
-      <button class="program-card custom" onclick={() => onSelect(program.id)}>
-        <span class="program-name">{getLocalizedName(program.name, lang)}</span>
-        <span class="program-detail">{$t('customProgram')}</span>
-      </button>
+      <div class="program-entry">
+        <div class="program-row">
+          <button class="program-select" onclick={() => onSelect(program.id)}>
+            <span class="program-name">{getLocalizedName(program.name, lang)}</span>
+            <span class="program-meta">{$t('customProgram')}</span>
+          </button>
+        </div>
+      </div>
     {/each}
   </div>
 
@@ -94,118 +106,105 @@
   .program-picker {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.6rem;
   }
 
-  h3 {
-    font-size: 1.1rem;
+  .section-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
     color: var(--text-secondary);
-    font-weight: 600;
+    padding-left: 0.25rem;
   }
 
   .program-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 2px;
   }
 
-  .program-card-wrapper {
-    display: flex;
-    flex-direction: column;
-    border: 2px solid var(--bg-surface);
-    border-radius: var(--radius);
+  .program-entry {
+    border-left: 2px solid transparent;
+    border-radius: 0 var(--radius) var(--radius) 0;
     background: var(--bg-secondary);
     transition: border-color 0.15s;
+    overflow: hidden;
   }
 
-  .program-card-wrapper:hover {
-    border-color: var(--accent);
+  .program-entry:hover,
+  .program-entry.expanded {
+    border-left-color: var(--accent);
   }
 
-  .program-card {
-    padding: 0;
-    background: transparent;
-  }
-
-  .program-card-header {
+  .program-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem 0.5rem 0;
+    gap: 0;
   }
 
-  .program-card-select {
+  .program-select {
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.2rem;
-    padding: 0.75rem 0.5rem 0.75rem 1rem;
+    gap: 0.15rem;
+    padding: 0.7rem 0.5rem 0.7rem 0.85rem;
     background: transparent;
     border: none;
-    border-radius: var(--radius);
     text-align: left;
     cursor: pointer;
-  }
-
-  .program-card-text {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-  }
-
-  .program-card.custom {
-    border: 2px dashed var(--bg-surface);
-    background: var(--bg-secondary);
-    padding: 1rem;
+    min-width: 0;
   }
 
   .program-name {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
-  .program-detail {
-    font-size: 0.8rem;
+  .program-meta {
+    font-size: 0.72rem;
     color: var(--text-secondary);
+    font-weight: 500;
   }
 
   .info-btn {
     flex-shrink: 0;
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    min-height: 32px;
+    width: 40px;
+    height: 40px;
     padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    background: var(--bg-surface);
+    background: transparent;
     color: var(--text-secondary);
-    font-size: 0.9rem;
-    border: none;
+    opacity: 0.5;
     cursor: pointer;
-    transition: color 0.15s, background 0.15s;
+    transition: opacity 0.15s, color 0.15s;
+  }
+
+  .info-btn svg {
+    width: 16px;
+    height: 16px;
   }
 
   .info-btn:hover,
   .info-btn.active {
+    opacity: 1;
     color: var(--accent);
-    background: rgba(0, 230, 118, 0.1);
   }
 
-  .program-info-panel {
+  .info-panel {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
-    padding: 0 1rem 1rem;
-    border-top: 1px solid var(--bg-surface);
-    margin-top: 0;
-    padding-top: 0.75rem;
+    gap: 0.3rem;
+    padding: 0 0.85rem 0.75rem 0.85rem;
+    border-top: 1px solid rgba(255,255,255,0.04);
   }
 
   .info-row {
@@ -213,12 +212,12 @@
     justify-content: space-between;
     align-items: baseline;
     gap: 0.5rem;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
 
   .info-row-groups {
     flex-direction: column;
-    gap: 0.3rem;
+    gap: 0.25rem;
   }
 
   .info-label {
@@ -238,25 +237,28 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    gap: 0.15rem;
   }
 
   .weapon-group-list li {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: var(--text-primary);
     padding-left: 0.75rem;
     position: relative;
   }
 
   .weapon-group-list li::before {
-    content: '•';
+    content: '—';
     position: absolute;
     left: 0;
     color: var(--accent);
+    font-size: 0.65rem;
   }
 
   .add-custom {
-    align-self: center;
-    margin-top: 0.5rem;
+    align-self: flex-start;
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
   }
 </style>

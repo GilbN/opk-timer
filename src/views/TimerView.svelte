@@ -1,7 +1,7 @@
 <script>
   import { get } from 'svelte/store'
   import { currentView, roomState, timerState, preferences } from '../lib/stores.js'
-  import { t } from '../lib/i18n.js'
+  import { t, getLocalizedName } from '../lib/i18n.js'
   import { getProgramById } from '../lib/programs/registry.js'
   import { saveTimerState, saveRoomState, clearTimerState, clearRoomState, addRoomToHistory } from '../lib/storage.js'
   import { setSoundEnabled } from '../lib/audio.js'
@@ -19,10 +19,20 @@
   let isHost = $derived($roomState.isHost || initialIsHost)
   let program = $derived(getProgramById($timerState.programId))
   let stage = $derived(program?.stages[$timerState.stageIndex])
+  let nextStageName = $derived.by(() => {
+    if (!program || !stage) return null
+    const nextExIdx = $timerState.exerciseIndex + 1
+    if (nextExIdx < stage.exercises.length) {
+      return getLocalizedName(stage.name, $preferences.lang)
+    }
+    const nextStageIdx = $timerState.stageIndex + 1
+    if (nextStageIdx < program.stages.length) {
+      return getLocalizedName(program.stages[nextStageIdx].name, $preferences.lang)
+    }
+    return null
+  })
   let displayMode = $derived(
-    stage?.type === 'duell' && stage?.exercises[$timerState.exerciseIndex]?.targetVisibleTime
-      ? 'duell'
-      : 'precision'
+    stage?.type === 'duell' || stage?.type === 'rapid' ? 'duell' : 'precision'
   )
 
   let connectionStatus = $state('connected')
@@ -57,30 +67,15 @@
     }
   })
 
-  function handleStart() {
-    window.__opkScheduler?.startSeries()
-  }
-
-  function handlePause() {
-    window.__opkScheduler?.pause()
-  }
-
-  function handleResume() {
-    window.__opkScheduler?.resume()
-  }
-
-  function handleStop() {
-    window.__opkScheduler?.stop()
-  }
-
-  function handleNext() {
-    window.__opkScheduler?.nextExercise()
-  }
+  function handleStart() { window.__opkScheduler?.startSeries() }
+  function handlePause() { window.__opkScheduler?.pause() }
+  function handleResume() { window.__opkScheduler?.resume() }
+  function handleStop() { window.__opkScheduler?.stop() }
+  function handleNext() { window.__opkScheduler?.nextExercise() }
 
   function handleReset() {
     if (!confirm(get(t)('confirmReset'))) return
     window.__opkScheduler?.reset()
-    // Also reset jam counters on host
     window.__opkHost?.resetAllJams()
     clearTimerState()
   }
@@ -142,6 +137,7 @@
 </script>
 
 <div class="view timer-view">
+  <!-- Top bar -->
   <div class="top-bar">
     {#if $roomState.code}
       <RoomCode code={$roomState.code} />
@@ -149,24 +145,44 @@
     {/if}
     <div class="top-actions">
       <button class="icon-btn" onclick={toggleSound} title={$t('sound')}>
-        {$preferences.soundEnabled ? '🔊' : '🔇'}
+        {#if $preferences.soundEnabled}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          </svg>
+        {:else}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <line x1="23" y1="9" x2="17" y2="15"/>
+            <line x1="17" y1="9" x2="23" y2="15"/>
+          </svg>
+        {/if}
       </button>
       <LangToggle />
     </div>
   </div>
 
+  <!-- Reshoot banner -->
   {#if $timerState.isReshoot && $timerState.reshootPeerName}
     <div class="reshoot-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="reshoot-icon">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+        <path d="M3 3v5h5"/>
+      </svg>
       {$t('reshootFor')} {$timerState.reshootPeerName}
     </div>
   {/if}
 
+  <!-- Timer centrepiece -->
   <div class="timer-area">
     <TimerDisplay mode={displayMode} />
   </div>
 
+  <!-- Series info -->
   <SeriesProgress />
 
+  <!-- Controls -->
   {#if isHost}
     <ControlBar
       onStart={handleStart}
@@ -175,6 +191,7 @@
       onStop={handleStop}
       onNext={handleNext}
       onReset={handleReset}
+      {nextStageName}
     />
     {#if $roomState.connectedPeers?.length > 0}
       <PeerList onReshoot={handleReshoot} />
@@ -187,98 +204,126 @@
       onStop={handleStop}
       onNext={handleNext}
       onReset={handleReset}
+      {nextStageName}
     />
   {:else}
     <div class="client-hint">{$t('waitingForHost')}</div>
   {/if}
 
+  <!-- Bottom utility actions -->
   <div class="bottom-actions">
     {#if isHost && ($timerState.phase === 'idle' || $timerState.phase === 'stopped')}
-      <button class="btn-secondary change-program-btn" onclick={changeProgram}>
-        {$t('changeProgram')}
-      </button>
+      <button class="btn-text" onclick={changeProgram}>{$t('changeProgram')}</button>
+      <span class="sep">·</span>
     {/if}
-    <button class="btn-danger leave-btn" onclick={disconnect}>
-      {$t('disconnect')}
-    </button>
+    <button class="btn-text danger" onclick={disconnect}>{$t('disconnect')}</button>
   </div>
 </div>
 
 <style>
   .timer-view {
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
+  /* ── Top bar ── */
   .top-bar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 0.5rem;
-    flex-wrap: wrap;
-    min-height: 44px;
+    min-height: 40px;
   }
 
   .top-actions {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.4rem;
     align-items: center;
     margin-left: auto;
   }
 
   .icon-btn {
     background: var(--bg-surface);
+    border: 1px solid rgba(255,255,255,0.06);
     padding: 0.4rem;
-    min-width: 44px;
-    min-height: 44px;
+    min-width: 40px;
+    min-height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: var(--radius);
-    font-size: 1.2rem;
   }
 
+  .icon-btn svg {
+    width: 18px;
+    height: 18px;
+    color: var(--text-secondary);
+  }
+
+  /* ── Reshoot banner ── */
   .reshoot-banner {
-    text-align: center;
-    padding: 0.5rem 1rem;
-    background: rgba(255, 152, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.45rem 1rem;
+    background: rgba(255, 181, 71, 0.1);
     color: var(--warning);
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.9rem;
     border-radius: var(--radius);
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
+    border: 1px solid rgba(255, 181, 71, 0.2);
   }
 
+  .reshoot-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  /* ── Timer area ── */
   .timer-area {
     flex: 1;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 200px;
+    align-items: stretch;
+    min-height: 160px;
   }
 
+  /* ── Client hint ── */
   .client-hint {
     text-align: center;
     color: var(--text-secondary);
-    font-size: 0.9rem;
-    padding: 1rem;
+    font-size: 0.85rem;
+    padding: 0.75rem;
   }
 
+  /* ── Bottom actions ── */
   .bottom-actions {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0;
+    padding-bottom: env(safe-area-inset-bottom, 0);
   }
 
-  .change-program-btn {
-    font-size: 0.85rem;
-    padding: 0.4rem 1rem;
-    opacity: 0.8;
-  }
-
-  .leave-btn {
+  .btn-text {
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.3rem 0.5rem;
+    border-radius: var(--radius);
     opacity: 0.6;
-    font-size: 0.85rem;
-    padding: 0.4rem 1rem;
+    transition: opacity 0.15s, color 0.15s;
+  }
+
+  .btn-text:hover { opacity: 1; }
+  .btn-text.danger { color: var(--danger); }
+  .btn-text.danger:hover { opacity: 0.85; }
+
+  .sep {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    opacity: 0.3;
   }
 </style>

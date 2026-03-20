@@ -132,19 +132,31 @@
 
 <div class="view home-view">
   <div class="header">
-    <h1>{$t('appName')}</h1>
+    <div class="wordmark">
+      <!-- Target ring icon -->
+      <svg class="wordmark-icon" viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+        <circle cx="16" cy="16" r="9" stroke="currentColor" stroke-width="1.5" opacity="0.7"/>
+        <circle cx="16" cy="16" r="4" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="16" cy="16" r="1.5" fill="currentColor"/>
+      </svg>
+      <span class="wordmark-text">{$t('appName')}</span>
+    </div>
     <LangToggle />
   </div>
 
-  <div class="hero">
-    <div class="logo">T</div>
-    <p class="subtitle">NSF 25m Competition Timer</p>
-  </div>
+  <p class="tagline">NSF 25m Competition Timer</p>
 
   <div class="actions">
-    <button class="btn-primary btn-large" onclick={createRoom} disabled={connecting}>
+    <button class="btn-primary btn-large btn-create" onclick={createRoom} disabled={connecting}>
       {$t('createRoom')}
     </button>
+
+    <div class="divider-row">
+      <span class="divider-line"></span>
+      <span class="divider-label">{$t('join')}</span>
+      <span class="divider-line"></span>
+    </div>
 
     <div class="join-section">
       <div class="join-row">
@@ -179,7 +191,12 @@
       </div>
     </div>
 
-    <button class="btn-secondary btn-large stopwatch-btn" onclick={openStopwatch}>
+    <button class="btn-ghost stopwatch-btn" onclick={openStopwatch}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="13" r="8"/>
+        <polyline points="12 9 12 13 14.5 15"/>
+        <path d="M9 3h6M12 3v2"/>
+      </svg>
       {$t('stopwatch')}
     </button>
   </div>
@@ -187,8 +204,8 @@
   {#if recentRooms.length > 0}
     <div class="recent-rooms">
       <div class="recent-header">
-        <h3>{$t('recentRooms')}</h3>
-        <button class="btn-clear" onclick={handleClearHistory}>{$t('clear')}</button>
+        <span class="recent-label">{$t('recentRooms')}</span>
+        <button class="btn-ghost-sm" onclick={handleClearHistory}>{$t('clear')}</button>
       </div>
       <div class="recent-list">
         {#each recentRooms as room}
@@ -196,9 +213,7 @@
             <span class="recent-code">{room.code}</span>
             <span class="recent-meta">
               {room.isHost ? $t('host') : $t('client')}
-              {#if room.joinedAt}
-                — {timeAgo(room.joinedAt)}
-              {/if}
+              {#if room.joinedAt}· {timeAgo(room.joinedAt)}{/if}
             </span>
           </button>
         {/each}
@@ -207,96 +222,129 @@
   {/if}
 
   {#if error}
-    <div class="error">{error}</div>
+    <div class="status-msg error">{error}</div>
   {/if}
 
   {#if connecting}
-    <div class="connecting">{$t('connecting')}...</div>
+    <div class="status-msg connecting">
+      <span class="spinner"></span>
+      {$t('connecting')}…
+    </div>
   {/if}
 </div>
 
 <style>
   .home-view {
     justify-content: center;
-    gap: 1.5rem;
+    gap: 1.25rem;
     overflow-y: auto;
     overflow-x: hidden;
   }
 
+  /* ── Header ── */
   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
 
-  h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-
-  .hero {
-    text-align: center;
+  .wordmark {
     display: flex;
-    flex-direction: column;
     align-items: center;
     gap: 0.5rem;
   }
 
-  .logo {
-    font-family: var(--font-mono);
-    font-size: 4rem;
-    font-weight: 900;
+  .wordmark-icon {
+    width: 28px;
+    height: 28px;
     color: var(--accent);
-    width: 80px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 3px solid var(--accent);
-    border-radius: var(--radius-lg);
+    flex-shrink: 0;
   }
 
-  .subtitle {
+  .wordmark-text {
+    font-family: var(--font-mono);
+    font-size: 1.15rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    color: var(--text-primary);
+  }
+
+  .tagline {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    text-align: center;
+    margin-top: -0.75rem;
   }
 
+  /* ── Actions ── */
   .actions {
     display: flex;
     flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .btn-create {
+    width: 100%;
+    font-size: 1rem;
+    letter-spacing: 0.06em;
+  }
+
+  .divider-row {
+    display: flex;
+    align-items: center;
     gap: 0.75rem;
+    margin: 0.1rem 0;
+  }
+
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--bg-surface);
+  }
+
+  .divider-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    opacity: 0.5;
   }
 
   .join-section {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
   .join-row {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.4rem;
     min-width: 0;
   }
 
   .join-row .btn-secondary {
     flex-shrink: 0;
     white-space: nowrap;
+    font-size: 0.95rem;
   }
 
   .join-input {
     flex: 1;
     min-width: 0;
     font-family: var(--font-mono);
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     text-align: center;
-    letter-spacing: 0.2em;
-    font-weight: 700;
+    letter-spacing: 0.25em;
+    font-weight: 900;
   }
 
   .join-details {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.4rem;
     min-width: 0;
   }
 
@@ -304,24 +352,48 @@
     flex: 1;
     min-width: 0;
     font-size: 0.9rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0.6rem 0.75rem;
   }
 
   .lane-input {
-    flex: 0 0 80px;
+    flex: 0 0 76px;
     text-align: center;
     font-family: var(--font-mono);
     font-weight: 700;
   }
 
-  .stopwatch-btn {
-    opacity: 0.8;
+  .btn-ghost {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius);
+    padding: 0.6rem 1.25rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    width: 100%;
+    transition: color 0.15s, border-color 0.15s;
   }
 
+  .btn-ghost svg {
+    width: 1.1em;
+    height: 1.1em;
+    flex-shrink: 0;
+  }
+
+  .btn-ghost:hover {
+    color: var(--text-primary);
+    border-color: rgba(255,255,255,0.15);
+  }
+
+  /* ── Recent rooms ── */
   .recent-rooms {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
   .recent-header {
@@ -330,21 +402,26 @@
     align-items: center;
   }
 
-  .recent-header h3 {
-    font-size: 0.9rem;
-    font-weight: 600;
+  .recent-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
     color: var(--text-secondary);
+    opacity: 0.6;
   }
 
-  .btn-clear {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
+  .btn-ghost-sm {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
     background: transparent;
     color: var(--text-secondary);
-    opacity: 0.7;
+    opacity: 0.5;
+    border-radius: var(--radius);
+    transition: opacity 0.15s, color 0.15s;
   }
 
-  .btn-clear:hover {
+  .btn-ghost-sm:hover {
     color: var(--danger);
     opacity: 1;
   }
@@ -352,46 +429,68 @@
   .recent-list {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 2px;
   }
 
   .recent-room-card {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.7rem 1rem;
+    padding: 0.6rem 0.85rem;
     background: var(--bg-secondary);
-    border: 1px solid var(--bg-surface);
-    border-radius: var(--radius);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-left: 2px solid transparent;
+    border-radius: 0 var(--radius) var(--radius) 0;
     transition: border-color 0.15s;
   }
 
   .recent-room-card:hover {
-    border-color: var(--accent);
+    border-left-color: var(--accent);
+    border-color: rgba(255,255,255,0.07);
+    border-left-color: var(--accent);
   }
 
   .recent-code {
     font-family: var(--font-mono);
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 700;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.18em;
     color: var(--accent);
   }
 
   .recent-meta {
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     color: var(--text-secondary);
   }
 
-  .error {
-    color: var(--danger);
+  /* ── Status messages ── */
+  .status-msg {
     text-align: center;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
+
+  .error { color: var(--danger); }
 
   .connecting {
     color: var(--warning);
-    text-align: center;
-    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 181, 71, 0.25);
+    border-top-color: var(--warning);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 </style>
