@@ -81,7 +81,3 @@ src/
 └── styles/
     └── global.css
 ```
-
-## License
-
-Private
