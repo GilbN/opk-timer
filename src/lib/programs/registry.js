@@ -5,7 +5,7 @@
  * Reference: "SKYTEPROGRAMMER 25 METER NSF (BANE & FELT)"
  */
 
-const DEFAULT_LOADING_TIME = 5
+const DEFAULT_LOADING_TIME = 60
 const DEFAULT_TARGET_HIDDEN_TIME = 7
 
 export const programs = [
