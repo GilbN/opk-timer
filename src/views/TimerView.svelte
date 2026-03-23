@@ -3,7 +3,7 @@
   import { currentView, roomState, timerState, preferences } from '../lib/stores.js'
   import { t, getLocalizedName } from '../lib/i18n.js'
   import { getProgramById } from '../lib/programs/registry.js'
-  import { saveTimerState, saveRoomState, savePreferences, clearTimerState, clearRoomState, addRoomToHistory, loadRoomState } from '../lib/storage.js'
+  import { saveTimerState, saveRoomState, clearTimerState, clearRoomState, addRoomToHistory, loadRoomState } from '../lib/storage.js'
   import { setSoundEnabled } from '../lib/audio.js'
   import { acquireWakeLock, releaseWakeLock } from '../lib/wakeLock.js'
   import TimerDisplay from '../components/TimerDisplay.svelte'
@@ -12,8 +12,7 @@
   import PeerList from '../components/PeerList.svelte'
   import RoomCode from '../components/RoomCode.svelte'
   import ConnectionStatus from '../components/ConnectionStatus.svelte'
-  import LangToggle from '../components/LangToggle.svelte'
-  import FontSizeToggle from '../components/FontSizeToggle.svelte'
+  import SettingsMenu from '../components/SettingsMenu.svelte'
 
   // Capture role at mount time so it's stable even if roomState changes on disconnect
   const initialIsHost = get(roomState).isHost
@@ -81,14 +80,6 @@
     }
   })
 
-  function toggleWakeLock() {
-    preferences.update((p) => {
-      const updated = { ...p, wakeLockEnabled: !p.wakeLockEnabled }
-      savePreferences(updated)
-      return updated
-    })
-  }
-
   function handleStart() { window.__opkScheduler?.startSeries() }
   function handlePause() { window.__opkScheduler?.pause() }
   function handleResume() { window.__opkScheduler?.resume() }
@@ -113,10 +104,6 @@
     host.recordJam(peer.peerId, stageKey)
     const label = peer.name || `#${peer.lane}` || peer.peerId.slice(-4)
     scheduler.startReshoot(label)
-  }
-
-  function toggleSound() {
-    preferences.update((p) => ({ ...p, soundEnabled: !p.soundEnabled }))
   }
 
   function changeProgram() {
@@ -171,37 +158,7 @@
       <ConnectionStatus status={connectionStatus} variant="dot" />
     {/if}
     <div class="top-actions">
-      <button class="icon-btn" class:active={$preferences.wakeLockEnabled} onclick={toggleWakeLock} title={$t('keepAwake')}>
-        {#if $preferences.wakeLockEnabled}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-        {:else}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-            <line x1="1" y1="1" x2="23" y2="23"/>
-          </svg>
-        {/if}
-      </button>
-      <button class="icon-btn" onclick={toggleSound} title={$t('sound')}>
-        {#if $preferences.soundEnabled}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-          </svg>
-        {:else}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <line x1="23" y1="9" x2="17" y2="15"/>
-            <line x1="17" y1="9" x2="23" y2="15"/>
-          </svg>
-        {/if}
-      </button>
-      <FontSizeToggle />
-      <LangToggle />
+      <SettingsMenu />
     </div>
   </div>
 
@@ -305,9 +262,6 @@
     color: var(--text-secondary);
   }
 
-  .icon-btn.active svg {
-    color: var(--accent);
-  }
 
   /* ── Reshoot banner ── */
   .reshoot-banner {

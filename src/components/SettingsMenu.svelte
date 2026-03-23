@@ -1,0 +1,258 @@
+<script>
+  import { preferences } from '../lib/stores.js'
+  import { savePreferences } from '../lib/storage.js'
+  import { t } from '../lib/i18n.js'
+
+  let open = $state(false)
+  const SCALES = [1, 1.2, 1.4]
+  const SCALE_LABELS = { 1: '100%', 1.2: '120%', 1.4: '140%' }
+
+  function toggle(key) {
+    preferences.update(p => {
+      const updated = { ...p, [key]: !p[key] }
+      savePreferences(updated)
+      return updated
+    })
+  }
+
+  function cycleScale() {
+    preferences.update(p => {
+      const next = SCALES[(SCALES.indexOf(p.textScale ?? 1) + 1) % SCALES.length]
+      const updated = { ...p, textScale: next }
+      savePreferences(updated)
+      return updated
+    })
+  }
+
+  function cycleLang() {
+    preferences.update(p => {
+      const updated = { ...p, lang: p.lang === 'no' ? 'en' : 'no' }
+      savePreferences(updated)
+      return updated
+    })
+  }
+
+  function handleOutside(e) {
+    if (!e.target.closest('.settings-menu')) close()
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Escape') close()
+  }
+
+  function close() {
+    open = false
+  }
+
+  $effect(() => {
+    if (open) {
+      document.addEventListener('click', handleOutside)
+      document.addEventListener('keydown', handleKey)
+      return () => {
+        document.removeEventListener('click', handleOutside)
+        document.removeEventListener('keydown', handleKey)
+      }
+    }
+  })
+</script>
+
+<div class="settings-menu">
+  <button
+    class="icon-btn"
+    class:open
+    onclick={(e) => { e.stopPropagation(); open = !open }}
+    title="Settings"
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="4" y1="6" x2="20" y2="6"/>
+      <line x1="4" y1="12" x2="20" y2="12"/>
+      <line x1="4" y1="18" x2="20" y2="18"/>
+    </svg>
+  </button>
+
+  {#if open}
+    <div class="panel" role="menu">
+
+      <!-- Wake lock -->
+      <button class="row" onclick={() => toggle('wakeLockEnabled')} role="menuitem">
+        <span class="row-icon">
+          {#if $preferences.wakeLockEnabled}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          {:else}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          {/if}
+        </span>
+        <span class="row-label">{$t('keepAwake')}</span>
+        <span class="row-value" class:on={$preferences.wakeLockEnabled}>
+          {$preferences.wakeLockEnabled ? 'ON' : 'OFF'}
+        </span>
+      </button>
+
+      <!-- Sound -->
+      <button class="row" onclick={() => toggle('soundEnabled')} role="menuitem">
+        <span class="row-icon">
+          {#if $preferences.soundEnabled}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+          {:else}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <line x1="23" y1="9" x2="17" y2="15"/>
+              <line x1="17" y1="9" x2="23" y2="15"/>
+            </svg>
+          {/if}
+        </span>
+        <span class="row-label">{$t('sound')}</span>
+        <span class="row-value" class:on={$preferences.soundEnabled}>
+          {$preferences.soundEnabled ? 'ON' : 'OFF'}
+        </span>
+      </button>
+
+      <div class="divider"></div>
+
+      <!-- Text size -->
+      <button class="row" onclick={cycleScale} role="menuitem">
+        <span class="row-icon text-icon">aA</span>
+        <span class="row-label">{$t('textSize')}</span>
+        <span class="row-value on">{SCALE_LABELS[$preferences.textScale ?? 1]}</span>
+      </button>
+
+      <!-- Language -->
+      <button class="row" onclick={cycleLang} role="menuitem">
+        <span class="row-icon text-icon">
+          {$preferences.lang === 'no' ? 'NO' : 'EN'}
+        </span>
+        <span class="row-label">{$t('language')}</span>
+        <span class="row-value on">{$preferences.lang === 'no' ? 'EN →' : 'NO →'}</span>
+      </button>
+
+    </div>
+  {/if}
+</div>
+
+<style>
+  .settings-menu {
+    position: relative;
+  }
+
+  /* icon-btn is defined in TimerView — replicate here for portability */
+  .icon-btn {
+    background: var(--bg-surface);
+    border: 1px solid rgba(255,255,255,0.06);
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    transition: border-color 0.15s;
+  }
+
+  .icon-btn svg {
+    width: 18px;
+    height: 18px;
+    color: var(--text-secondary);
+  }
+
+  .icon-btn.open,
+  .icon-btn:hover {
+    border-color: rgba(255,255,255,0.15);
+  }
+
+  .icon-btn.open svg {
+    color: var(--text-primary);
+  }
+
+  /* ── Panel ── */
+  .panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 220px;
+    background: var(--bg-secondary);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    overflow: hidden;
+    z-index: 100;
+    /* Use px so the panel doesn't scale with font scale */
+    font-size: 13px;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    transition: background 0.12s;
+    cursor: pointer;
+  }
+
+  .row:hover {
+    background: rgba(255,255,255,0.05);
+  }
+
+  .row-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--text-secondary);
+  }
+
+  .row-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .text-icon {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+  }
+
+  .row-label {
+    flex: 1;
+    color: var(--text-secondary);
+  }
+
+  .row-value {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary);
+    opacity: 0.5;
+  }
+
+  .row-value.on {
+    color: var(--accent);
+    opacity: 1;
+  }
+
+  .divider {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 2px 0;
+  }
+</style>
