@@ -20,6 +20,7 @@
   let isHost = $derived($roomState.isHost || initialIsHost)
   let program = $derived(getProgramById($timerState.programId))
   let stage = $derived(program?.stages[$timerState.stageIndex])
+  let hasNextStage = $derived(program && $timerState.stageIndex < program.stages.length - 1)
   let connectionStatus = $state('connected')
 
   // Persist timer state on changes (host only)
@@ -178,6 +179,21 @@
     </div>
   {/if}
 
+  <!-- Stage / program complete banner -->
+  {#if $timerState.stageComplete}
+    <div class="stage-complete-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="banner-icon">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      {#if hasNextStage}
+        {$t('stageComplete')}
+        {#if isHost}<span class="banner-hint">→ {$t('nextStage')}</span>{/if}
+      {:else}
+        {$t('programComplete')}
+      {/if}
+    </div>
+  {/if}
+
   <!-- Timer centrepiece -->
   <div class="timer-area">
     <TimerDisplay />
@@ -262,6 +278,33 @@
     color: var(--text-secondary);
   }
 
+
+  /* ── Stage complete banner ── */
+  .stage-complete-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.45rem 1rem;
+    background: rgba(0, 230, 118, 0.08);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-radius: var(--radius);
+    letter-spacing: 0.04em;
+    border: 1px solid rgba(0, 230, 118, 0.2);
+  }
+
+  .banner-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  .banner-hint {
+    opacity: 0.65;
+    font-weight: 500;
+  }
 
   /* ── Reshoot banner ── */
   .reshoot-banner {

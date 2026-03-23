@@ -50,6 +50,12 @@
   padding: 0;
 }
 
+html {
+  /* Prevent iOS from auto-scaling fonts on rotation — we control font size ourselves */
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+}
+
 html, body {
   height: 100%;
   font-family: var(--font-sans);

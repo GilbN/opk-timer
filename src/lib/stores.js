@@ -23,7 +23,8 @@ export const timerState = writable({
   duelShowingIndex: 0,
   phaseStartedAt: null,
   isReshoot: false,       // true when running a reshoot for a specific peer
-  reshootPeerName: null,   // name of peer getting reshoot
+  reshootPeerName: null,  // name of peer getting reshoot
+  stageComplete: false,   // true when all exercises in the current stage are done
 })
 
 // UI preferences

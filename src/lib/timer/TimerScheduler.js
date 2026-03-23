@@ -45,6 +45,7 @@ export class TimerScheduler {
       phaseStartedAt: null,
       isReshoot: false,
       reshootPeerName: null,
+      stageComplete: false,
     }
     this._updateState({})
   }
@@ -164,6 +165,7 @@ export class TimerScheduler {
       phaseStartedAt: Date.now(),
       isReshoot: false,
       reshootPeerName: null,
+      stageComplete: false,
     })
 
     beepStart()
@@ -337,21 +339,27 @@ export class TimerScheduler {
       return
     }
 
+    const stage = this.getCurrentStage()
     const exercise = this.getCurrentExercise()
     const nextSeriesIndex = this.state.seriesIndex + 1
 
     if (nextSeriesIndex < exercise.seriesCount) {
+      // More series remain in this exercise
       this._updateState({
         phase: 'stopped',
         seriesIndex: nextSeriesIndex,
         remainingMs: 0,
         targetVisible: false,
+        stageComplete: false,
       })
     } else {
+      // Last series of this exercise done — check if it's the last exercise in the stage
+      const isLastExerciseInStage = this.state.exerciseIndex === stage.exercises.length - 1
       this._updateState({
         phase: 'stopped',
         remainingMs: 0,
         targetVisible: false,
+        stageComplete: isLastExerciseInStage,
       })
     }
   }
@@ -372,6 +380,7 @@ export class TimerScheduler {
         targetVisible: false,
         isReshoot: false,
         reshootPeerName: null,
+        stageComplete: false,
       })
       return
     }
@@ -388,6 +397,7 @@ export class TimerScheduler {
         targetVisible: false,
         isReshoot: false,
         reshootPeerName: null,
+        stageComplete: false,
       })
       return
     }
@@ -435,6 +445,7 @@ export class TimerScheduler {
         phaseStartedAt: null,
         isReshoot: false,
         reshootPeerName: null,
+        stageComplete: false,
       })
     }
   }
