@@ -9,10 +9,6 @@
   let lang = $derived($preferences.lang)
   let nextName = $derived.by(() => {
     if (!program || !stage || $timerState.phase !== 'stopped') return null
-    const nextExIdx = $timerState.exerciseIndex + 1
-    if (nextExIdx < stage.exercises.length) {
-      return getLocalizedName(stage.name, lang)
-    }
     const nextStageIdx = $timerState.stageIndex + 1
     if (nextStageIdx < program.stages.length) {
       return getLocalizedName(program.stages[nextStageIdx].name, lang)
@@ -28,7 +24,7 @@
     <span class="tag stage">{getLocalizedName(stage.name, lang)}</span>
     {#if stage.exercises.length > 1}
       <span class="divider">·</span>
-      <span class="tag">{$t('series')} {$timerState.exerciseIndex + 1}/{stage.exercises.length}</span>
+      <span class="tag">{$t('exercise')} {$timerState.exerciseIndex + 1}/{stage.exercises.length}</span>
     {/if}
     <span class="divider">·</span>
     <span class="tag">
@@ -43,7 +39,7 @@
     {/if}
   </div>
   {#if nextName}
-    <div class="next-up">{$t('nextExercise')}: <span class="next-name">{nextName}</span></div>
+    <div class="next-up">{$t('nextStage')}: <span class="next-name">{nextName}</span></div>
   {/if}
 {/if}
 
