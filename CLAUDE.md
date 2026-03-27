@@ -24,7 +24,7 @@ The app uses a strict host/client topology:
 - **Clients** join by code, receive timer state via P2P sync, and display it. Clients cannot control the timer.
 - PeerJS peer IDs use the prefix `opk-timer-` + room code. Room codes avoid ambiguous characters (no O, 0, I, 1, L).
 
-Global singletons `window.__opkHost` (PeerHost) and `window.__opkClient` (PeerClient) hold the active connection. These are set in `App.svelte` during session creation or restore.
+Global singletons `window.__opkHost` (PeerHost), `window.__opkClient` (PeerClient), and `window.__opkScheduler` (TimerScheduler) hold the active connection/scheduler. These are set in `App.svelte` during session creation or restore.
 
 ### State flow
 
@@ -50,10 +50,18 @@ Global singletons `window.__opkHost` (PeerHost) and `window.__opkClient` (PeerCl
 | `src/lib/programs/registry.js` | Built-in NSF programs + custom program lookup from localStorage |
 | `src/lib/storage.js` | localStorage wrappers for persisting timer state, room state, preferences, custom programs |
 | `src/lib/i18n.js` | Norwegian/English translations as a derived Svelte store (`t`) |
+| `src/lib/audio.js` | Web Audio API tones + vibration: `beepStart`, `beepStop`, `beepTargetUp`, `beepTargetDown`, `unlockAudio` |
+| `src/lib/wakeLock.js` | Screen wake lock wrapper (keeps display on during competition) |
 
 ### Program structure
 
-Programs (defined in `registry.js`) have `stages[]` → `exercises[]`. Each exercise has `seriesCount`, `shotsPerSeries`, `timePerSeries`, and `loadingTime`. Duel stages also have `targetVisibleTime`, `targetHiddenTime`, and `shotsPerShowing`. Custom programs are stored in localStorage under key `opk-timer-custom-programs`.
+Programs (defined in `registry.js`) have `stages[]` → `exercises[]`. Each exercise has `seriesCount`, `shotsPerSeries`, `timePerSeries`, and `loadingTime`. Stages have a `type` field:
+
+- **`precision`**: target visible for the full `timePerSeries`
+- **`rapid`**: hidden phase (`targetHiddenTime`) then visible phase (`timePerSeries`)
+- **`duell`**: repeated hidden/visible cycles (`targetHiddenTime`/`targetVisibleTime`) with `shotsPerShowing` shots each cycle
+
+Custom programs are stored in localStorage under key `opk-timer-custom-programs`.
 
 ### Session persistence
 

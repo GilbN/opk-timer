@@ -7,11 +7,12 @@ Synchronized timer for NSF 25m shooting competitions. Built as a Progressive Web
 - **Built-in NSF programs** — Fin/Grov Pistol, Standard, Silhouette, NAIS, Rapid Fire with full stage/series timing
 - **Custom programs** — Create and save your own competition programs
 - **P2P multiplayer** — Host creates a room, shooters join by 4-character code. Timer state syncs in real-time via WebRTC (PeerJS)
-- **Precision & Duel modes** — Countdown timers for precision stages, target-up/target-down cycling for duel stages
+- **Precision, Rapid & Duel modes** — Countdown timers for precision stages, hidden/visible cycling for rapid-fire and duel stages
 - **Malfunction handling** — Track jams per shooter (max 2 per program, 1 per stage) with reshoot support
 - **Bilingual** — Norwegian and English
 - **Offline-capable PWA** — Install to home screen, works without internet after first load
 - **Standalone stopwatch** — Simple stopwatch mode independent of the competition system
+- **Settings** — Font scaling, sound toggle, screen wake lock, keep-alive toggle
 
 ## How it works
 
@@ -62,6 +63,8 @@ src/
 │   ├── ProgramEditor.svelte # Custom program builder
 │   ├── PeerList.svelte     # Connected shooters with jam/reshoot
 │   ├── ConnectionStatus.svelte
+│   ├── SettingsMenu.svelte # Font scale, sound, wake lock, keep-alive
+│   ├── FontSizeToggle.svelte
 │   ├── RoomCode.svelte
 │   └── LangToggle.svelte
 ├── lib/
