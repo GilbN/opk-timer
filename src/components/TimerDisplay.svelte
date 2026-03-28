@@ -193,8 +193,11 @@
   .phase-loading .digits,
   .phase-loading .colon  { color: var(--phase-loading); }
 
-  .phase-shooting .digits { color: #ffffff; }
-  .phase-shooting .colon  { color: var(--phase-shooting); }
+  .phase-shooting .digits { color: var(--phase-shooting); }
+  .phase-shooting .colon  { color: var(--phase-shooting); opacity: 0.5; }
+
+  .target-down .digits { color: var(--target-down); }
+  .target-down .colon  { color: var(--target-down); opacity: 0.5; }
 
   .phase-paused .digits   { color: var(--phase-paused); }
   .phase-paused .colon    { color: var(--phase-paused); opacity: 0.4; }
