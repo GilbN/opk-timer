@@ -65,6 +65,18 @@ export function loadCustomPrograms() {
   return safeGet(STORAGE_KEYS.CUSTOM_PROGRAMS) || []
 }
 
+export function updateCustomProgram(program) {
+  const programs = loadCustomPrograms()
+  const idx = programs.findIndex(p => p.id === program.id)
+  if (idx !== -1) programs[idx] = program
+  saveCustomPrograms(programs)
+}
+
+export function deleteCustomProgram(id) {
+  const programs = loadCustomPrograms().filter(p => p.id !== id)
+  saveCustomPrograms(programs)
+}
+
 export function addRoomToHistory(entry) {
   // entry: { code, isHost, programId?, joinedAt }
   const history = safeGet(STORAGE_KEYS.ROOM_HISTORY) || []
