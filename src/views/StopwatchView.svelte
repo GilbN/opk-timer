@@ -1,8 +1,8 @@
 <script>
-  import { currentView, timerState, formattedTime } from '../lib/stores.js'
+  import { currentView, timerState, formattedTime, preferences } from '../lib/stores.js'
   import { t } from '../lib/i18n.js'
   import { TimerEngine } from '../lib/timer/TimerEngine.js'
-  import LangToggle from '../components/LangToggle.svelte'
+  import SettingsMenu from '../components/SettingsMenu.svelte'
 
   let engine = new TimerEngine()
   let running = $state(false)
@@ -75,16 +75,20 @@
       </svg>
       <h2>{$t('stopwatch')}</h2>
     </div>
-    <LangToggle />
+    <SettingsMenu />
   </div>
 
   <div class="display-area">
     <div class="time" class:running>
-      <span class="digits">{display.min}</span>
-      <span class="colon">:</span>
-      <span class="digits">{display.sec}</span>
-      <span class="colon small">.</span>
-      <span class="digits sub">{display.ms}</span>
+      {#if $preferences.stopwatchFormat === 'seconds'}
+        <span class="digits">{Math.floor(elapsed / 1000)}</span>
+      {:else}
+        <span class="digits">{display.min}</span>
+        <span class="colon">:</span>
+        <span class="digits">{display.sec}</span>
+        <span class="colon small">.</span>
+        <span class="digits sub">{display.ms}</span>
+      {/if}
     </div>
   </div>
 

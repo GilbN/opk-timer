@@ -12,7 +12,7 @@
   // Restore preferences on load
   const savedPrefs = loadPreferences()
   if (savedPrefs) {
-    preferences.set(savedPrefs)
+    preferences.update(defaults => ({ ...defaults, ...savedPrefs }))
   }
 
   // Apply font scale to html element whenever preferences change

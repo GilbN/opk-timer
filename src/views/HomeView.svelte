@@ -7,8 +7,7 @@
   import { TimerScheduler } from '../lib/timer/TimerScheduler.js'
   import { unlockAudio } from '../lib/audio.js'
   import { saveRoomState, loadRoomHistory, clearRoomHistory } from '../lib/storage.js'
-  import LangToggle from '../components/LangToggle.svelte'
-  import FontSizeToggle from '../components/FontSizeToggle.svelte'
+  import SettingsMenu from '../components/SettingsMenu.svelte'
 
   let joinCodeInput
   let joinCode = $state('')
@@ -171,8 +170,7 @@
       <span class="wordmark-text">{$t('appName')}</span>
     </div>
     <div class="header-actions">
-      <FontSizeToggle />
-      <LangToggle />
+      <SettingsMenu />
     </div>
   </div>
 

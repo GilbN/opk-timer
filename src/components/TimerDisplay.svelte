@@ -1,5 +1,5 @@
 <script>
-  import { timerState, formattedTime } from '../lib/stores.js'
+  import { timerState, formattedTime, preferences } from '../lib/stores.js'
   import { t } from '../lib/i18n.js'
   import { getProgramById } from '../lib/programs/registry.js'
 
@@ -61,7 +61,7 @@
 
   <!-- Main time digits -->
   <div class="time" class:glow={isTargetUp}>
-    {#if phase === 'shooting'}
+    {#if $preferences.countdownFormat === 'seconds'}
       <span class="digits super">{$formattedTime.totalSeconds}</span>
     {:else}
       <span class="digits">{$formattedTime.minutes}</span>

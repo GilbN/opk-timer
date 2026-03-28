@@ -9,6 +9,7 @@
   import ProgramPicker from '../components/ProgramPicker.svelte'
   import ProgramEditor from '../components/ProgramEditor.svelte'
   import LangToggle from '../components/LangToggle.svelte'
+  import SettingsMenu from '../components/SettingsMenu.svelte'
 
   let showEditor = $state(false)
 
@@ -53,7 +54,7 @@
     <RoomCode code={$roomState.code} />
     <div class="top-bar-right">
       <ConnectionStatus status="connected" />
-      <LangToggle />
+      <SettingsMenu />
     </div>
   </div>
 

@@ -32,6 +32,22 @@
     })
   }
 
+  function cycleCountdownFormat() {
+    preferences.update(p => {
+      const updated = { ...p, countdownFormat: p.countdownFormat === 'seconds' ? 'mmss' : 'seconds' }
+      savePreferences(updated)
+      return updated
+    })
+  }
+
+  function cycleStopwatchFormat() {
+    preferences.update(p => {
+      const updated = { ...p, stopwatchFormat: p.stopwatchFormat === 'mmss' ? 'seconds' : 'mmss' }
+      savePreferences(updated)
+      return updated
+    })
+  }
+
   function handleOutside(e) {
     if (!e.target.closest('.settings-menu')) close()
   }
@@ -118,6 +134,35 @@
       </button>
 
       <div class="divider"></div>
+
+      <!-- Countdown format -->
+      <button class="row" onclick={cycleCountdownFormat} role="menuitem">
+        <span class="row-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </span>
+        <span class="row-label">{$t('countdownFormat')}</span>
+        <span class="row-value on">
+          {$preferences.countdownFormat === 'seconds' ? $t('countdownSeconds') : $t('countdownMinSec')}
+        </span>
+      </button>
+
+      <!-- Stopwatch format -->
+      <button class="row" onclick={cycleStopwatchFormat} role="menuitem">
+        <span class="row-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="13" r="8"/>
+            <polyline points="12 9 12 13 14.5 15"/>
+            <path d="M9 3h6M12 3v2"/>
+          </svg>
+        </span>
+        <span class="row-label">{$t('stopwatchFormat')}</span>
+        <span class="row-value on">
+          {$preferences.stopwatchFormat === 'mmss' ? $t('countdownMinSec') : $t('countdownSeconds')}
+        </span>
+      </button>
 
       <!-- Text size -->
       <button class="row" onclick={cycleScale} role="menuitem">
