@@ -2,8 +2,8 @@
   import { onMount } from 'svelte'
   import { currentView, roomState } from '../lib/stores.js'
   import { t } from '../lib/i18n.js'
-  import { PeerHost } from '../lib/peer/PeerHost.js'
-  import { PeerClient } from '../lib/peer/PeerClient.js'
+  import { SocketHost } from '../lib/peer/SocketHost.js'
+  import { SocketClient } from '../lib/peer/SocketClient.js'
   import { TimerScheduler } from '../lib/timer/TimerScheduler.js'
   import { unlockAudio } from '../lib/audio.js'
   import { saveRoomState, loadRoomHistory, clearRoomHistory } from '../lib/storage.js'
@@ -31,7 +31,7 @@
     error = ''
     connecting = true
     try {
-      const host = new PeerHost()
+      const host = new SocketHost()
       const code = await host.createRoom()
       window.__opkHost = host
       saveRoomState({ code, isHost: true })
@@ -60,7 +60,7 @@
     error = ''
     connecting = true
     try {
-      const client = new PeerClient()
+      const client = new SocketClient()
       window.__opkClient = client
       const code = await client.joinRoom(joinCode.trim(), { name: joinName.trim(), lane: joinLane.trim() })
       saveRoomState({ code, isHost: false, name: joinName.trim(), lane: joinLane.trim() })
@@ -83,7 +83,7 @@
     connecting = true
     try {
       if (room.isHost) {
-        const host = new PeerHost()
+        const host = new SocketHost()
         await host.createRoom(room.code)
         window.__opkHost = host
         saveRoomState({ code: room.code, isHost: true, programId: room.programId })
@@ -97,7 +97,7 @@
         }
         currentView.set(room.programId ? 'timer' : 'lobby')
       } else {
-        const client = new PeerClient()
+        const client = new SocketClient()
         window.__opkClient = client
         await client.joinRoom(room.code, { name: room.name || '', lane: room.lane || '' })
         saveRoomState({ code: room.code, isHost: false, name: room.name, lane: room.lane })

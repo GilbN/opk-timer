@@ -1,8 +1,8 @@
 <script>
   import { currentView, preferences, roomState, timerState } from './lib/stores.js'
   import { loadPreferences, loadRoomState, loadTimerState, clearRoomState, clearTimerState } from './lib/storage.js'
-  import { PeerHost } from './lib/peer/PeerHost.js'
-  import { PeerClient } from './lib/peer/PeerClient.js'
+  import { SocketHost } from './lib/peer/SocketHost.js'
+  import { SocketClient } from './lib/peer/SocketClient.js'
   import { TimerScheduler } from './lib/timer/TimerScheduler.js'
   import HomeView from './views/HomeView.svelte'
   import LobbyView from './views/LobbyView.svelte'
@@ -31,7 +31,7 @@
     try {
       if (savedRoom.isHost) {
         // Host reload: reclaim the same room code
-        const host = new PeerHost()
+        const host = new SocketHost()
         await host.createRoom(savedRoom.code)
         window.__opkHost = host
 
@@ -60,7 +60,7 @@
         }
       } else {
         // Client reload: reconnect to the same room
-        const client = new PeerClient()
+        const client = new SocketClient()
         window.__opkClient = client
         await client.joinRoom(savedRoom.code, { name: savedRoom.name || '', lane: savedRoom.lane || '' })
         currentView.set('timer')

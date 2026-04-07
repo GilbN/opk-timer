@@ -7,8 +7,11 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 export default defineConfig(({ command }) => ({
   base: process.env.VITE_BASE_PATH || '/',
   server: command === 'serve' ? {
-    https: true,
-    host: true
+    https: process.env.VITE_HTTPS === 'true',
+    host: true,
+    proxy: {
+      '/ws': { target: 'ws://localhost:8080', ws: true },
+    },
   } : undefined,
   plugins: [
     ...(command === 'serve' ? [basicSsl()] : []),

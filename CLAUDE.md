@@ -5,32 +5,39 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev       # Start dev server with HMR
+npm run dev       # Start Vite dev server with HMR
 npm run build     # Production build (outputs to dist/)
 npm run preview   # Preview production build locally
+
+# WebSocket relay server (required for multi-device sync)
+cd server && npm run dev   # Dev (auto-restart on change)
+cd server && npm start     # Production
 ```
+
+Set `VITE_WS_SERVER_URL=ws://localhost:8080` in `.env.local` for local development (already present).
 
 No test runner or linter is configured.
 
 ## Architecture Overview
 
-OPK Timer is a **Svelte 5 + Vite PWA** for running synchronized NSF 25m shooting competition timers across multiple devices via peer-to-peer networking (PeerJS).
+OPK Timer is a **Svelte 5 + Vite PWA** for running synchronized NSF 25m shooting competition timers across multiple devices via a WebSocket relay server.
 
 ### Host/Client model
 
 The app uses a strict host/client topology:
 
-- **Host** creates a room with a 4-character code (e.g. `ABCD`), owns the `TimerScheduler`, and broadcasts state to all clients.
-- **Clients** join by code, receive timer state via P2P sync, and display it. Clients cannot control the timer.
-- PeerJS peer IDs use the prefix `opk-timer-` + room code. Room codes avoid ambiguous characters (no O, 0, I, 1, L).
+- **Host** creates a room with a 4-character code (e.g. `ABCD`), owns the `TimerScheduler`, and broadcasts state to all clients via the relay server.
+- **Clients** join by code, receive timer state via the relay, and display it. Clients cannot control the timer.
+- Room codes avoid ambiguous characters (no O, 0, I, 1, L).
+- The relay server (`server/index.js`) is stateless except for an in-memory room registry and a cached last `STATE_SYNC` per room for fast reconnection.
 
-Global singletons `window.__opkHost` (PeerHost), `window.__opkClient` (PeerClient), and `window.__opkScheduler` (TimerScheduler) hold the active connection/scheduler. These are set in `App.svelte` during session creation or restore.
+Global singletons `window.__opkHost` (SocketHost), `window.__opkClient` (SocketClient), and `window.__opkScheduler` (TimerScheduler) hold the active connection/scheduler. These are set in `App.svelte` during session creation or restore.
 
 ### State flow
 
 1. `TimerScheduler` (host-only) drives the countdown via `TimerEngine` and updates the `timerState` Svelte store.
-2. `TimerScheduler.onStateChange` callback triggers `PeerHost.broadcastState(state)`, which sends `STATE_SYNC` messages to all clients.
-3. Clients receive messages in `PeerClient._handleMessage` and write directly to the `timerState` store.
+2. `TimerScheduler.onStateChange` callback triggers `SocketHost.broadcastState(state)`, which sends `STATE_SYNC` messages to all clients via the relay.
+3. Clients receive messages in `SocketClient._handleMessage` and write directly to the `timerState` store.
 4. All Svelte components read from `timerState` (and other stores in `src/lib/stores.js`) reactively.
 
 ### View routing
@@ -44,8 +51,10 @@ Global singletons `window.__opkHost` (PeerHost), `window.__opkClient` (PeerClien
 | `src/lib/stores.js` | Global Svelte stores: `currentView`, `roomState`, `timerState`, `preferences`, `formattedTime` |
 | `src/lib/timer/TimerScheduler.js` | Orchestrates the full competition flow (loading → shooting → stopped, duel cycles, reshoot logic) |
 | `src/lib/timer/TimerEngine.js` | Low-level countdown using `requestAnimationFrame` |
-| `src/lib/peer/PeerHost.js` | WebRTC host: room creation, client connections, jam tracking, broadcasting |
-| `src/lib/peer/PeerClient.js` | WebRTC client: joining, auto-reconnect, receiving state |
+| `src/lib/peer/SocketHost.js` | WebSocket host: room creation, client tracking, jam tracking, broadcasting |
+| `src/lib/peer/SocketClient.js` | WebSocket client: joining, auto-reconnect, receiving state |
+| `server/index.js` | Relay server: room registry, message fanout, STATE_SYNC cache, heartbeat |
+| `src/lib/config.js` | `WS_SERVER_URL` — reads `VITE_WS_SERVER_URL` env var |
 | `src/lib/peer/messages.js` | Message type constants (`MSG`) and `createMessage` factory |
 | `src/lib/programs/registry.js` | Built-in NSF programs + custom program lookup from localStorage |
 | `src/lib/storage.js` | localStorage wrappers for persisting timer state, room state, preferences, custom programs |
@@ -69,4 +78,4 @@ On page load, `App.svelte` calls `restoreSession()` which reads `localStorage` f
 
 ### Malfunction (jam) rules
 
-Max 2 malfunctions per program per peer, max 1 per stage. Tracked in `PeerHost` per connection entry (`jamsUsed`, `jamStageKeys`). Reset on program reset via `PeerHost.resetAllJams()`.
+Max 2 malfunctions per program per peer, max 1 per stage. Tracked in `SocketHost` per connection entry (`jamsUsed`, `jamStageKeys`). Reset on program reset via `SocketHost.resetAllJams()`.
