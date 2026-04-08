@@ -4,4 +4,4 @@ function resolveWsUrl(url) {
   return `${proto}//${location.host}${url}`
 }
 
-export const WS_SERVER_URL = resolveWsUrl(import.meta.env.VITE_WS_SERVER_URL || 'wss://your-server.example.com')
+export const WS_SERVER_URL = resolveWsUrl(import.meta.env.VITE_WS_SERVER_URL || '/ws')
