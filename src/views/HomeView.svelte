@@ -140,10 +140,6 @@
     window.__pwaInstallPrompt = null
   }
 
-  async function shareApp() {
-    await navigator.share({ title: 'OPK Timer', url: window.location.href })
-  }
-
   function openStopwatch() {
     unlockAudio()
     currentView.set('stopwatch')
@@ -248,15 +244,14 @@
             <button class="btn-ghost-sm install-close" onclick={() => showInstallCard = false}>✕</button>
           </div>
           <div class="install-ios-row">
-            <span class="install-hint">{$t('installIosHint')}</span>
-            <button class="btn-primary btn-install" onclick={shareApp}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+            <span class="install-hint">
+              <svg class="safari-share-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
                 <polyline points="16 6 12 2 8 6"/>
                 <line x1="12" y1="2" x2="12" y2="15"/>
               </svg>
-              {$t('shareToInstall')}
-            </button>
+              {$t('installIosHint')}
+            </span>
           </div>
         {:else}
           <div class="install-header">
@@ -619,6 +614,15 @@
     flex: 1;
     font-size: 0.8rem;
     color: var(--text-secondary);
+  }
+
+  .safari-share-icon {
+    display: inline-block;
+    vertical-align: middle;
+    width: 1.1em;
+    height: 1.1em;
+    margin-right: 0.2em;
+    color: var(--accent);
   }
 
   .btn-install {
