@@ -230,8 +230,7 @@
     box-shadow: 0 8px 24px rgba(0,0,0,0.4);
     overflow: hidden;
     z-index: 100;
-    /* Use px so the panel doesn't scale with font scale */
-    font-size: 13px;
+    font-size: 0.8125rem;
   }
 
   .row {
@@ -244,7 +243,7 @@
     border: none;
     border-radius: 0;
     color: var(--text-primary);
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: 500;
     text-align: left;
     transition: background 0.12s;
@@ -271,7 +270,7 @@
   }
 
   .text-icon {
-    font-size: 11px;
+    font-size: 0.6875rem;
     font-weight: 700;
     color: var(--text-secondary);
     letter-spacing: 0.04em;
@@ -283,7 +282,7 @@
   }
 
   .row-value {
-    font-size: 11px;
+    font-size: 0.6875rem;
     font-weight: 700;
     letter-spacing: 0.06em;
     color: var(--text-secondary);
