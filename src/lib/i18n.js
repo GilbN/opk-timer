@@ -115,6 +115,10 @@ const translations = {
     countdownMinSec: 'Min:Sek',
     countdownSecondsLabel: 'sek',
     countdownMinLabel: 'min',
+    spectator: 'Tilskuer',
+    displayScreen: 'Vis på skjerm',
+    watchDisplay: 'Skjermvisning',
+    watchDisplayHint: 'Stor skjermvisning for monitor/nettbrett uten kontroller',
   },
   en: {
     appName: 'OPK Timer',
@@ -229,6 +233,10 @@ const translations = {
     countdownMinSec: 'Min:Sec',
     countdownSecondsLabel: 'sec',
     countdownMinLabel: 'min',
+    spectator: 'Spectator',
+    displayScreen: 'Display Screen',
+    watchDisplay: 'Display Mode',
+    watchDisplayHint: 'Large-screen view for monitors/tablets — no controls',
   },
 }
 

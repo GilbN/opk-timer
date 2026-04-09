@@ -76,27 +76,29 @@ function handleCreateRoom(ws, { code }) {
   console.log(`[room] created ${code}`)
 }
 
-function handleJoinRoom(ws, { code, name, lane }) {
+function handleJoinRoom(ws, { code, name, lane, role }) {
   const room = rooms.get(code)
   if (!room) {
     send(ws, { action: 'ERROR', reason: 'room_not_found' })
     return
   }
-  if (lane && isLaneTaken(room, lane)) {
+  const isSpectator = role === 'spectator'
+  if (!isSpectator && lane && isLaneTaken(room, lane)) {
     send(ws, { action: 'ERROR', reason: 'lane_taken' })
     return
   }
   const peerId = generatePeerId()
-  room.clients.set(peerId, { ws, name: name || '', lane: lane || '' })
+  room.clients.set(peerId, { ws, name: name || '', lane: lane || '', isSpectator })
   ws._roomCode = code
   ws._role = 'client'
+  ws._isSpectator = isSpectator
   ws._peerId = peerId
 
   // Always send join acknowledgement first
   send(ws, { action: 'JOINED', peerId, code })
 
-  // Notify host (if connected)
-  if (room.host) {
+  // Notify host for non-spectators only (spectators are invisible to host)
+  if (!isSpectator && room.host) {
     send(room.host, { action: 'PEER_JOINED', peerId, name: name || '', lane: lane || '' })
   }
 
@@ -176,7 +178,7 @@ function handleClose(ws) {
     }, HOST_GRACE_PERIOD)
   } else {
     room.clients.delete(peerId)
-    if (room.host) {
+    if (room.host && !ws._isSpectator) {
       send(room.host, { action: 'PEER_LEFT', peerId })
     }
     console.log(`[room] ${code} peer left: ${peerId}`)
