@@ -94,28 +94,47 @@
 
   <!-- Main display area -->
   <div class="display-body">
+    <!-- Stage/program complete banner — full width, above everything -->
+    {#if $timerState.stageComplete}
+      <div class="complete-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        {#if hasNextStage}
+          {$t('stageComplete')}
+        {:else}
+          {$t('programComplete')}
+        {/if}
+        {#if nextStageName}
+          <span class="next-stage-hint">→ {nextStageName}</span>
+        {/if}
+      </div>
+    {/if}
+
+    <!-- Phase banner — full width, above both columns -->
+    {#if phase !== 'idle'}
+      <div class="phase-banner">
+        <span class="phase-rule"></span>
+        <span class="phase-text">{$t(phase)}</span>
+        <span class="phase-rule"></span>
+      </div>
+    {/if}
+
+    <!-- Reshoot badge — full width, above both columns -->
+    {#if $timerState.isReshoot && $timerState.reshootPeerName}
+      <div class="reshoot-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+        {$t('reshootFor')} {$timerState.reshootPeerName}
+      </div>
+    {/if}
+
+    <!-- Columns row -->
+    <div class="display-cols">
     <!-- Timer column -->
     <div class="timer-col">
-      <!-- Phase banner -->
-      {#if phase !== 'idle'}
-        <div class="phase-banner">
-          <span class="phase-rule"></span>
-          <span class="phase-text">{$t(phase)}</span>
-          <span class="phase-rule"></span>
-        </div>
-      {/if}
-
-      <!-- Reshoot badge -->
-      {#if $timerState.isReshoot && $timerState.reshootPeerName}
-        <div class="reshoot-badge">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-            <path d="M3 3v5h5"/>
-          </svg>
-          {$t('reshootFor')} {$timerState.reshootPeerName}
-        </div>
-      {/if}
-
       <!-- Target indicator -->
       {#if phase === 'shooting'}
         <div class="target-indicator" class:up={isTargetUp}>
@@ -138,7 +157,7 @@
       {/if}
 
       <!-- Countdown digits -->
-      <div class="time" class:glow={isTargetUp}>
+      <div class="time" class:glow={isTargetUp} class:minsec={$preferences.countdownFormat !== 'seconds'}>
         {#if $preferences.countdownFormat === 'seconds'}
           <span class="digits">{$formattedTime.totalSeconds}</span>
         {:else}
@@ -151,23 +170,6 @@
 
     <!-- Info column (visible in landscape) -->
     <div class="info-col">
-      <!-- Stage/program complete banner -->
-      {#if $timerState.stageComplete}
-        <div class="complete-banner">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-          {#if hasNextStage}
-            {$t('stageComplete')}
-          {:else}
-            {$t('programComplete')}
-          {/if}
-          {#if nextStageName}
-            <span class="next-stage-hint">→ {nextStageName}</span>
-          {/if}
-        </div>
-      {/if}
-
       {#if program && stage && exercise}
         <div class="info-program">{getLocalizedName(program.name, lang)}</div>
         <div class="info-stage" class:trial={isTrialStage}>
@@ -189,16 +191,8 @@
         {/if}
       {/if}
 
-      <!-- Portrait-only: stage complete banner (shown below info) -->
-      {#if $timerState.stageComplete}
-        <div class="complete-banner portrait-only">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-          {#if hasNextStage}{$t('stageComplete')}{:else}{$t('programComplete')}{/if}
-        </div>
-      {/if}
     </div>
+    </div><!-- end display-cols -->
   </div>
 </div>
 
@@ -281,8 +275,19 @@
     align-items: center;
     justify-content: center;
     min-height: 0;
-    gap: 1rem;
+    gap: 0.75rem;
     padding: 0.5rem 1.5rem 1.5rem;
+  }
+
+  /* ── Columns row (timer + info side by side in landscape) ── */
+  .display-cols {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    width: 100%;
   }
 
   /* ── Timer column ── */
@@ -303,7 +308,6 @@
     align-items: center;
     gap: 1rem;
     width: 100%;
-    max-width: 600px;
   }
 
   .phase-rule {
@@ -425,6 +429,10 @@
     transition: color 0.4s ease;
   }
 
+  /* Min:sec format: each span holds 2 chars so scale down proportionally */
+  .time.minsec .digits { font-size: clamp(4rem, 20vw, 20rem); }
+  .time.minsec .colon  { font-size: clamp(3rem, 13vw, 14rem); }
+
   /* Digit colors by phase */
   .phase-loading  .digits,
   .phase-loading  .colon  { color: var(--phase-loading); }
@@ -463,6 +471,8 @@
     border-radius: var(--radius);
     border: 1px solid rgba(0, 230, 118, 0.2);
     letter-spacing: 0.04em;
+    width: 100%;
+    justify-content: center;
   }
 
   .complete-banner svg {
@@ -509,10 +519,16 @@
   /* ── Landscape layout: side-by-side ── */
   @media (orientation: landscape) {
     .display-body {
+      justify-content: flex-start;
+      gap: 0.5rem;
+      padding: 0.5rem 1.5rem 1rem;
+    }
+
+    .display-cols {
       flex-direction: row;
       align-items: center;
       gap: 0;
-      padding: 0.5rem 1.5rem 1rem;
+      justify-content: center;
     }
 
     .timer-col {
@@ -529,11 +545,8 @@
       align-self: stretch;
     }
 
-    /* In landscape, hide portrait-only info (stage complete already shown in timer-col area) */
+    /* In landscape, hide portrait-only items */
     .portrait-only { display: none; }
-
-    /* In landscape, show the complete banner only in the info-col (not portrait-only) */
-    .complete-banner:not(.portrait-only) { display: flex; }
 
     /* Slightly smaller digits in landscape since height is the constraint */
     .digits {
@@ -543,6 +556,9 @@
     .colon {
       font-size: clamp(5rem, 24vh, 22rem);
     }
+
+    .time.minsec .digits { font-size: clamp(4rem, 18vh, 18rem); }
+    .time.minsec .colon  { font-size: clamp(3rem, 12vh, 12rem); }
 
     .target-indicator {
       font-size: clamp(1rem, 3vh, 2rem);
@@ -556,6 +572,5 @@
     .info-program { font-size: clamp(1.6rem, 5.5vh, 3.5rem); text-align: left; line-height: 1.1; }
     .info-stage   { font-size: clamp(1.2rem, 4vh, 2.6rem); text-align: left; line-height: 1.15; }
     .info-row     { font-size: clamp(1rem, 3vh, 1.9rem); text-align: left; }
-    .complete-banner { font-size: clamp(0.95rem, 2.2vh, 1.4rem); }
   }
 </style>
