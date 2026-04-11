@@ -368,11 +368,16 @@
 
 <style>
   .home-view {
-    justify-content: center;
     gap: 1.25rem;
     overflow-y: auto;
     overflow-x: hidden;
   }
+
+  /* Center content vertically when it fits, but allow scrolling to the top
+     when it doesn't. justify-content: center would clip overflow above the
+     viewport; auto margins collapse to 0 once the container overflows. */
+  .home-view > :first-child { margin-top: auto; }
+  .home-view > :last-child  { margin-bottom: auto; }
 
   /* ── Header ── */
   .header {
