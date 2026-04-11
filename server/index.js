@@ -4,7 +4,7 @@ const PORT = process.env.PORT || 8080
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS || '*'
 const HEARTBEAT_INTERVAL = 30_000
 const HEARTBEAT_TIMEOUT = 10_000
-const HOST_GRACE_PERIOD = 30_000 // 30s for host to reconnect
+const HOST_GRACE_PERIOD = 60_000 * 10 // 10 minutes for host to reconnect
 
 // roomCode → { host: WebSocket|null, clients: Map<peerId, { ws, name, lane }>, lastState: object|null, graceTimer: number|null }
 const rooms = new Map()
@@ -58,12 +58,24 @@ function handleCreateRoom(ws, { code }) {
       ws._roomCode = code
       ws._role = 'host'
       send(ws, { action: 'ROOM_CREATED', code })
-      
+
+      // Send a snapshot of current non-spectator peers so the host can
+      // rebuild its connections map. Any PEER_JOINED / PEER_LEFT messages
+      // emitted while the host was offline were silently dropped, so
+      // without this the host's view of the lobby can drift from ground
+      // truth (missing peers, duplicated peers after later rejoins, etc).
+      const peers = []
+      for (const [peerId, client] of existingRoom.clients) {
+        if (client.isSpectator) continue
+        peers.push({ peerId, name: client.name, lane: client.lane })
+      }
+      send(ws, { action: 'PEERS_SNAPSHOT', peers })
+
       // Notify clients that host is back
       for (const { ws: clientWs } of existingRoom.clients.values()) {
         send(clientWs, { action: 'HOST_RECONNECTED' })
       }
-      console.log(`[room] ${code} host reclaimed`)
+      console.log(`[room] ${code} host reclaimed (${peers.length} peer${peers.length === 1 ? '' : 's'})`)
       return
     }
     send(ws, { action: 'ERROR', reason: 'code_taken' })
