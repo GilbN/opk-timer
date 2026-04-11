@@ -4,7 +4,7 @@ const PORT = process.env.PORT || 8080
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS || '*'
 const HEARTBEAT_INTERVAL = 30_000
 const HEARTBEAT_TIMEOUT = 10_000
-const HOST_GRACE_PERIOD = 60_000 * 10 // 10 minutes for host to reconnect
+const HOST_GRACE_PERIOD = 60_000 * 30 // 10 minutes for host to reconnect
 
 // roomCode → { host: WebSocket|null, clients: Map<peerId, { ws, name, lane }>, lastState: object|null, graceTimer: number|null }
 const rooms = new Map()
@@ -165,6 +165,32 @@ function handleRelayTo(ws, { peerId, message }) {
   }
 }
 
+function handleCloseRoom(ws) {
+  const entry = getRoomForClient(ws)
+  if (!entry || entry.role !== 'host') return
+
+  const { code, room } = entry
+
+  // Cancel any pending grace timer — the host is telling us explicitly
+  // that the session is over, so we should not wait to clean up.
+  if (room.graceTimer) {
+    clearTimeout(room.graceTimer)
+    room.graceTimer = null
+  }
+
+  // Notify every client that the room has been closed by the host.
+  const closedMsg = {
+    action: 'RELAYED',
+    message: { type: 'ROOM_CLOSED', payload: {}, ts: Date.now() },
+  }
+  for (const { ws: clientWs } of room.clients.values()) {
+    send(clientWs, closedMsg)
+  }
+
+  rooms.delete(code)
+  console.log(`[room] ${code} closed by host`)
+}
+
 // --- Connection lifecycle ---
 
 function handleClose(ws) {
@@ -244,11 +270,12 @@ wss.on('connection', (ws) => {
     }
 
     switch (msg.action) {
-      case 'CREATE_ROOM': handleCreateRoom(ws, msg); break
-      case 'JOIN_ROOM':   handleJoinRoom(ws, msg);   break
-      case 'RELAY':       handleRelay(ws, msg);       break
-      case 'RELAY_TO':    handleRelayTo(ws, msg);     break
-      case 'PING':        send(ws, { action: 'PONG' }); break
+      case 'CREATE_ROOM':  handleCreateRoom(ws, msg);          break
+      case 'JOIN_ROOM':    handleJoinRoom(ws, msg);             break
+      case 'RELAY':        handleRelay(ws, msg);                break
+      case 'RELAY_TO':     handleRelayTo(ws, msg);              break
+      case 'CLOSE_ROOM':   handleCloseRoom(ws);                 break
+      case 'PING':         send(ws, { action: 'PONG' });        break
     }
   })
 

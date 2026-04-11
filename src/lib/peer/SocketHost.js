@@ -321,7 +321,9 @@ export class SocketHost {
       clearTimeout(this._reconnectTimer)
       this._reconnectTimer = null
     }
-    this.broadcast(MSG.ROOM_CLOSED)
+    // Ask the server to close the room — it will notify all clients and
+    // delete the room entry, preventing a spurious 30-minute grace period.
+    this._sendEnvelope({ action: 'CLOSE_ROOM' })
     if (this.ws) {
       try { this.ws.close() } catch {}
       this.ws = null

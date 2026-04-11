@@ -69,7 +69,7 @@
         } else if (status === 'reconnecting') {
           connectionStatus = 'reconnecting'
         } else if (status === 'roomClosed') {
-          connectionStatus = 'disconnected'
+          connectionStatus = 'roomClosed'
         } else {
           connectionStatus = 'disconnected'
         }

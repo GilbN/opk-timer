@@ -30,7 +30,7 @@
       client.onStatusChange((status) => {
         if (status === 'connected') connectionStatus = 'connected'
         else if (status === 'reconnecting') connectionStatus = 'reconnecting'
-        else if (status === 'roomClosed') connectionStatus = 'disconnected'
+        else if (status === 'roomClosed') connectionStatus = 'roomClosed'
         else connectionStatus = 'disconnected'
       })
     }
@@ -405,7 +405,7 @@
 
   .digits {
     font-family: var(--font-mono);
-    font-size: clamp(8rem, 28vw, 30rem);
+    font-size: clamp(10rem, 38vw, 35em);
     font-weight: 900;
     line-height: 1;
     letter-spacing: -0.03em;
@@ -477,7 +477,7 @@
   }
 
   .info-program {
-    font-size: clamp(1rem, 2.5vw, 1.8rem);
+    font-size: clamp(2.6rem, 6.5vh, 7.5rem);
     font-weight: 700;
     color: var(--text-primary);
     text-align: center;
