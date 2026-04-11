@@ -552,9 +552,10 @@
       font-size: clamp(0.9rem, 2.5vh, 1.4rem);
     }
 
-    .info-program { font-size: clamp(1rem, 3vh, 2rem); text-align: left; }
-    .info-stage   { font-size: clamp(0.85rem, 2.5vh, 1.5rem); text-align: left; }
-    .info-row     { font-size: clamp(0.8rem, 2vh, 1.2rem); text-align: left; }
-    .complete-banner { font-size: clamp(0.85rem, 2vh, 1.2rem); }
+    .info-col { gap: 0.9rem; }
+    .info-program { font-size: clamp(1.6rem, 5.5vh, 3.5rem); text-align: left; line-height: 1.1; }
+    .info-stage   { font-size: clamp(1.2rem, 4vh, 2.6rem); text-align: left; line-height: 1.15; }
+    .info-row     { font-size: clamp(1rem, 3vh, 1.9rem); text-align: left; }
+    .complete-banner { font-size: clamp(0.95rem, 2.2vh, 1.4rem); }
   }
 </style>
