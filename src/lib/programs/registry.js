@@ -5,6 +5,8 @@
  * Reference: "SKYTEPROGRAMMER 25 METER NSF (BANE & FELT)"
  */
 
+import { loadCustomPrograms } from '../storage'
+
 const DEFAULT_LOADING_TIME = 60
 const DEFAULT_TARGET_HIDDEN_TIME = 7
 const DEFAULT_TARGET_VISIBLE_TIME_DUEL = 3
@@ -332,9 +334,9 @@ export const programs = [
 export function getProgramById(id) {
   const builtin = programs.find((p) => p.id === id)
   if (builtin) return builtin
-  // Check custom programs in localStorage
+  // Check custom programs via shared storage helper
   try {
-    const custom = JSON.parse(localStorage.getItem('nsf-timer-custom-programs') || '[]')
+    const custom = loadCustomPrograms()
     return custom.find((p) => p.id === id) || null
   } catch {
     return null
