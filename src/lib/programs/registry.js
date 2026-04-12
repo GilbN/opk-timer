@@ -214,6 +214,7 @@ export const programs = [
           shotsPerSeries: 5,
           timePerSeries: 150,
           loadingTime: DEFAULT_LOADING_TIME,
+          targetHiddenTime: DEFAULT_TARGET_HIDDEN_TIME,
         }],
       },
       {
@@ -225,6 +226,7 @@ export const programs = [
           shotsPerSeries: 5,
           timePerSeries: 150,
           loadingTime: DEFAULT_LOADING_TIME,
+          targetHiddenTime: DEFAULT_TARGET_HIDDEN_TIME,
         }],
       },
       {
