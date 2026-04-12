@@ -130,6 +130,7 @@
               class="btn-remove-exercise"
               onclick={() => removeExercise(dsIdx, exIdx)}
               title={$t('removeExercise')}
+              aria-label={$t('removeExercise')}
             >X</button>
           {/if}
           <div class="field-row">
