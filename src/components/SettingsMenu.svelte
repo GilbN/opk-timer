@@ -4,6 +4,8 @@
   import { t } from '../lib/i18n.js'
 
   let open = $state(false)
+  let showAbout = $state(false)
+  const appVersion = __APP_VERSION__
   const SCALES = [1, 1.2, 1.4]
   const SCALE_LABELS = { 1: '100%', 1.2: '120%', 1.4: '140%' }
 
@@ -180,6 +182,42 @@
         <span class="row-value on">{$preferences.lang === 'no' ? 'EN →' : 'NO →'}</span>
       </button>
 
+      <div class="divider"></div>
+
+      <!-- About -->
+      <button class="row" onclick={() => showAbout = !showAbout} role="menuitem">
+        <span class="row-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+        </span>
+        <span class="row-label">{$t('about')}</span>
+        <span class="row-value on">{showAbout ? '▲' : '▼'}</span>
+      </button>
+
+      {#if showAbout}
+        <div class="about-section">
+          <div class="about-row">
+            <span class="about-label">{$t('version')}</span>
+            <span class="about-value">{appVersion}</span>
+          </div>
+          <div class="about-row">
+            <span class="about-label">{$t('sourceCode')}</span>
+            <a class="about-link" href="https://github.com/GilbN/nsf-timer" target="_blank" rel="noopener">GitHub</a>
+          </div>
+          <div class="about-row">
+            <span class="about-label">{$t('license')}</span>
+            <span class="about-value">MIT</span>
+          </div>
+          <div class="about-row">
+            <span class="about-label">{$t('reportBug')}</span>
+            <a class="about-link" href="https://github.com/GilbN/nsf-timer/issues" target="_blank" rel="noopener">GitHub Issues</a>
+          </div>
+        </div>
+      {/if}
+
     </div>
   {/if}
 </div>
@@ -298,5 +336,41 @@
     height: 1px;
     background: rgba(255,255,255,0.06);
     margin: 2px 0;
+  }
+
+  .about-section {
+    padding: 6px 14px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .about-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+  }
+
+  .about-label {
+    color: var(--text-secondary);
+  }
+
+  .about-value {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+  }
+
+  .about-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.6875rem;
+  }
+
+  .about-link:hover {
+    text-decoration: underline;
   }
 </style>

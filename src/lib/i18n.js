@@ -126,6 +126,11 @@ const translations = {
     watchDisplay: 'Vis',
     watchDisplayHint: 'Stor skjermvisning for monitor/nettbrett uten kontroller',
     tagline: 'NSF 25m Konkurransetimer',
+    about: 'Om',
+    version: 'Versjon',
+    sourceCode: 'Kildekode',
+    license: 'Lisens',
+    reportBug: 'Rapporter feil',
   },
   en: {
     appName: 'NSF Timer',
@@ -251,6 +256,11 @@ const translations = {
     watchDisplay: 'Display',
     watchDisplayHint: 'Large-screen view for monitors/tablets — no controls',
     tagline: 'NSF 25m Competition Timer',
+    about: 'About',
+    version: 'Version',
+    sourceCode: 'Source Code',
+    license: 'License',
+    reportBug: 'Report a Bug',
   },
 }
 
