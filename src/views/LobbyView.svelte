@@ -64,8 +64,10 @@
     {#if $roomState.isSolo}
       <div class="solo-badge">{$t('soloMode')}</div>
     {:else}
-      <RoomCode code={$roomState.code} />
-      <ConnectionStatus status="connected" />
+      <div class="top-bar-left">
+        <RoomCode code={$roomState.code} />
+        <ConnectionStatus status="connected" />
+      </div>
     {/if}
     <SettingsMenu />
   </div>
@@ -132,6 +134,12 @@
     border-radius: 50%;
     background: var(--accent);
     flex-shrink: 0;
+  }
+
+  .top-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .content {
