@@ -4,6 +4,7 @@
   import { t } from '../lib/i18n.js'
 
   let visible = $derived($updateAvailable && !$updateDismissed)
+  let panelEl = $state(null)
   let matchInProgress = $derived(
     $timerState?.phase === 'loading' || $timerState?.phase === 'shooting'
   )
@@ -18,9 +19,14 @@
 
   $effect(() => {
     if (!visible) return
+    const previouslyFocused = document.activeElement
+    panelEl?.focus()
     function onKey(e) { if (e.key === 'Escape') dismiss() }
     document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus()
+    }
   })
 </script>
 
@@ -33,6 +39,7 @@
       aria-modal="true"
       aria-labelledby="update-modal-title"
       tabindex="-1"
+      bind:this={panelEl}
       onclick={(e) => e.stopPropagation()}
     >
       <div class="modal-header">

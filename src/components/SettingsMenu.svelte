@@ -84,7 +84,6 @@
   <button
     class="icon-btn"
     class:open
-    class:has-update={$updateAvailable}
     onclick={(e) => { e.stopPropagation(); open = !open }}
     title="Settings"
   >
